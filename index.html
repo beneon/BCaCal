@@ -1,0 +1,45 @@
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<script src="jquery-1.11.3.min.js"></script>
+<script src="model2.js"></script>
+</head>
+
+<body>
+  <h1>CalculatorBrain测试一下</h1>
+<div id="log">
+  <h3>Content:</h3>
+  <ul>
+    <li>age<textarea id="age" rows="1">44</textarea></li>
+    <li>diameter<textarea id="dia" rows="1">1</textarea></li>
+    <li>node number<textarea id="nnum" rows="1">1</textarea></li>
+    <li>ER<textarea id="er" rows="1">1</textarea></li>
+    <li>PR<textarea id="pr" rows="1">1</textarea></li>
+    <li>HER<textarea id="her" rows="1">1</textarea></li>
+    <li>histology<textarea id="his" rows="1">1</textarea></li>
+    <li>grade<textarea id="grade" rows="1">1</textarea></li>
+  </ul>
+</div>
+<div onclick="getTextAreaValues()">计算</div>
+<div onclick="testingGround()">跑一下</div>
+
+<script>
+  function getTextAreaValues(){
+    LMB=LifeMathBCaCal
+    LMB.age=$("#age").val()
+    LMB.dia=$("#dia").val()
+    LMB.nnum=$("#nnum").val()
+    LMB.er=$("#er").val()
+    LMB.pr=$("#pr").val()
+    LMB.her=$("#her").val()
+    LMB.his=$("#his").val()
+    LMB.grade=$("#grade").val()
+    LMB.updateGraph()
+  }
+  
+/*
+上面的是playground，下面弄一下model部分
+*/
+
+</script>
+
+</body>
