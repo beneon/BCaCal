@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- these 3 lines is must have -->
+  <meta name="description" content="">
+  <meta name="author" content="Ben">
+  <link rel="icon" href="favicon.ico">
+  <title>bootstrap Testing</title>
+  <link href="../bootstrap/css/normalize.css" rel="stylesheet">
+  <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="testing.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container dialPad">
+    <div class="row">
+      <div clas="col-xs-12">
+      <button id="dialResult" type="button" class="btn btn-default btn-block btn-primary" value="输入数值" onclick="btnSubmit(this)">输入数值</button>
+    </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <p>
+        <button name="7" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">7</button>
+        <button name="8" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">8</button>
+        <button name="9" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">9</button>
+        </p>
+        <p>
+        <button name="4" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">4</button>
+        <button name="5" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">5</button>
+        <button name="6" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">6</button>
+        </p>
+        <p>
+        <button name="1" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">1</button>
+        <button name="2" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">2</button>
+        <button name="3" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">3</button>
+        </p>
+        <p>
+        <button name="dot" dialType="dot" type="button" class="btn btn-default" onclick="btnClick(this)">.</button>
+        <button name="0" dialType="digit" type="button" class="btn btn-default" onclick="btnClick(this)">0</button>
+        <button name="bs" dialType="bs" type="button" class="btn btn-default" onclick="btnClick(this)"><span class="glyphicon glyphicon-backward"></span></button>
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- core javascript -->
+  <script src="../script/jquery-1.11.3.min.js"></script>
+  <script src="../bootstrap/js/bootstrap.min.js"></script>
+  <script src="testing.js"></script>
+</body>
+</html>

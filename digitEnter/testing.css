@@ -1,0 +1,25 @@
+.body{
+  padding-top: 50px;
+}
+.dialPad{
+  width:200px;
+}
+
+.dialPad .row{
+  height: 50px;
+  width:200px;
+}
+
+.dialPad .row p .btn{
+  width:40px;
+}
+
+.dialPad .row p{
+  text-align: center;
+}
+/*关键还是要给button外面的p做一个center align*/
+
+.hint{
+  color:lightgray;
+  font-size: smaller;
+}
