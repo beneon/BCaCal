@@ -41,3 +41,16 @@ function btnSubmit(btnSrc){
   $(btnSrc).html("输入数值")
   return resultFloat
 }
+document.addEventListener("keypress", function (event) {
+  var keyPressed = String.fromCharCode(event.charCode)
+  console.log(keyPressed)
+  if(/\d/.test(keyPressed)){
+    btnClick(document.getElementsByName(keyPressed))
+  }else if(keyPressed == "."){
+    btnClick(document.getElementsByName("dot"))
+  }
+  // else if(keyPressed == "bs"){
+  //   btnClick(document.getElementsByName("bs"))
+  // }
+  // keypress没办法截取backspace呢……
+},true)
