@@ -39,7 +39,10 @@
     </div>
     <label for="nodes" class="col-sm-6 control-label">阳性淋巴结数量</label>
     <div class="col-sm-6 input-group">
-      <input type="number" class="form-control" id="nodes" placeholder="0">
+      <span class="input-group-addon">
+        <input type="checkbox" aria-label="已知" id="nodesKnown" onclick="makeEnable('nodes',this.checked)">
+      </span>
+      <input type="number" class="form-control" id="nodes" placeholder="0" disabled>
       <span class="input-group-addon addonFixedWidth">个</span>
     </div>
 
@@ -143,7 +146,7 @@
   </div>
   <div class="form-group">
     <div class="col-sm-offset-6 col-sm-6 noPadding">
-      <button type="button" class="btn btn-default btn-block">计算</button>
+      <button type="button" class="btn btn-default btn-block" onclick="calculateUpdate()">计算</button>
     </div>
   </div>
 
@@ -164,5 +167,28 @@
   <!-- core javascript -->
   <script src="../script/jquery-1.11.3.min.js"></script>
   <script src="../bootstrap/js/bootstrap.min.js"></script>
+  <script src="../script/lifemathMod.js"></script>
+  <script>
+  function calculateUpdate(){
+    var age = parseInt($("#age").val())
+    var dia = parseFloat($("#diameter").val())
+    var nnum = parseInt($("#nodes").val())
+    var er = parseInt($("#er").val())
+    var pr = parseInt($("#pr").val())
+    var her = parseInt($("#her").val())
+    var his = parseInt($("#hist").val())
+    var grade = parseInt($("#grade").val())
+    var endo = parseInt($("#hormonal").val())
+    var chemo = parseInt($("#chemo").val())
+    var nknown = $("#nodesKnown").prop("checked")
+    console.log(nknown)
+  }
+  function makeEnable(target,isEnable){
+    $("#"+target).prop('disabled', !isEnable)
+    if(isEnable){
+      $("#"+target).focus()
+    }
+  }
+  </script>
 </body>
 </html>
