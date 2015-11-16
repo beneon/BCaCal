@@ -84,7 +84,6 @@ function LifeMathCal(){
   *   Qs            0.010054                0.014751
   ****************************************************************************/
   var Qs=0.014751;
-  var j_primary=0.8057;
   var Z=1; //initializes Z value
   var R=0.07581; //initializes R value
   var endotherapyEffect=0; //Resets endotherapy effect before every calculation to no endotherapy
@@ -100,5 +99,60 @@ function LifeMathCal(){
   var grade = 0
   var endo= 0
   var chemo= 0
-
+  var nodesKnown = false
+  var j_primary = nodesKnown?0.8057:1
+  // If nodal status is unknown, j_primary is set to 1
+  /********************************************************************
+   STEP 2.a 	The program loads the g parameters determined by the user input, and computes the product of all of them
+  ****************************************************************************/
+  function ageGParameter(agePara){
+    var factorAge = 1//Reset g_parameter before each calculation
+    if(agePara>=21 && agePara<=30){
+      factorAge=1.2035;	//if user age is 21-30 then g-value is 1.2035
+    }else if(agePara<=40){
+      factorAge=1.0705;  //if user age is 31-40 then g-value is 1.0705
+    }else if(agePara<=50){
+      factorAge=0.85655;  //if user age is 41-50 then g-value is 0.85655
+    }else if(agePara<=60){
+      factorAge=1.0228;  //if user age is 51-60 then g-value is 1.0228
+    }else if(agePara<=70){
+      factorAge=1.0248;  //if user age is 61-70 then g-value is 1.0248
+    }else if(agePara<=80){
+      factorAge=1.01945;  //if user age is 71-80 then g-value is 1.01945
+    }else if(agePara<=90){
+      factorAge=1.17735;  //if user age is 81-90 then g-value is 1.17735
+    }else if(agePara<=100){
+      factorAge=1.32845;  //if user age is 91-100 then g-value is 1.32845
+    }else{
+      factorAge=1
+    }
+    gPara = gPara*factorAge
+    return gPara
+  }
+  function erAndPr(erPara,prPara){
+      var gPara = new Array()
+      gPara["er0pr0"]=1
+      gPara["er0pr1"]=0.9166
+      gPara["er0pr2"]=1.1701
+      gPara["er1pr0"]=0.953
+      gPara["er1pr1"]=0.91685
+      gPara["er1pr2"]=1.15415
+      gPara["er2pr0"]=1.1753
+      gPara["er2pr1"]=1.0131
+      gPara["er2pr2"]=1.1904
+      return gPara["er"+erPara+"pr"+prPara]
+  }
+  function her(herPara){
+    var gPara = [1,1.515,0.9662]
+    if(herPara <= 2 && herPara>=0){
+      return gPara[herPara]
+    }else{
+      console.log("herPara is wrong")
+      return 1
+    }
+  }
+  function his(hisPara){
+    var gPara = [1,1.04495,0.97825,0.8624,0.42355,0.55305,0.2639,0.84305,1.51235,3.1544,1.42765,0.49,0.70395,0.8505,0.14972]
+    return gPara[hisPara]
+  }
 }
