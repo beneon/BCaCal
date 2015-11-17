@@ -1,30 +1,11 @@
-function a(){
-  this.b = function(){
-    return 3
-  }
-  this.c = function c(){
-    return 4
-  }
-}
-var e = new a()
-console.log(e.b())
-
-function b(){
-  function aa(){
-    return 100
-  }
-  return aa()
-}
-
-console.log(b())
-
-function her(herPara){
-  var gPara = [1,1.515,0.9662]
-  if(herPara <= 2 && herPara>=0){
-    return gPara[herPara]
-  }else{
-    console.log("herPara is wrong")
-    return 1
-  }
-}
-console.log(her(10))
+var Qs=0.014751;
+var Z=1; //initializes Z value
+var R=0.07581; //initializes R value
+var g_parameter = 1.0705;
+var j_primary = 1
+var dia = 3
+console.log(Math.exp(10))
+// L_primary = 1 - Math.exp(-Qs*g_parameter*j_primary*Math.pow(dia*10,Z))
+// console.log(L_primary)
+// L_nodes = 1 - Math.exp(-nnum*R)
+// L_breastcancer_KM = L_primary + L_nodes - (L_primary*L_nodes)

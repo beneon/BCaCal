@@ -74,6 +74,8 @@ function LifeMathCal(){
   var L_overall_death_yearly_therapy=new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   var L_overall_death_cumm_therapy=new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   var remaining_percentage_therapy=new Array(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+  var calc_life_expectation = 0;
+  var expect_years_life_lost = 0;
   // * calc_num_surviving: calculated number of women with breast cancer surviving
   // * calc_person_years_lived_between_years: calculated number of person years lived by women with breast cancer between two consecutive years
   // * calc_total_num_of_person_years_lived_above: caculated number of person years lived by women with breast cancer above a certain age
@@ -89,8 +91,8 @@ function LifeMathCal(){
   var endotherapyEffect=0; //Resets endotherapy effect before every calculation to no endotherapy
   var chemotherapyEffect=0; //Resets endotherapy effect before every calculation to no chemotherapy
   var totaltherapyEffect=0; //Resets total therapy effect before every calculation to no therapy
-  var age =  0
-  var dia =  0
+  var age =  50
+  var dia =  1
   var nnum= 0
   var er = 0
   var pr = 0
@@ -98,38 +100,46 @@ function LifeMathCal(){
   var his = 0
   var grade = 0
   var endo= 0
-  var chemo= 0
+  var chemo= 2
   var nodesKnown = false
   var j_primary = nodesKnown?0.8057:1
+  var L_primary = 0
+  var L_nodes = 0
+  var L_breastcancer_KM = 0
+  var totaltherapyEffect = 0
+  var L_breastcancer_KM_therapy = 0
+  var expect_years_life_lost_therapy=0
+  var expect_life_saved_years=0
+  var expect_life_saved_days=0
   // If nodal status is unknown, j_primary is set to 1
   /********************************************************************
    STEP 2.a 	The program loads the g parameters determined by the user input, and computes the product of all of them
   ****************************************************************************/
-  function ageGParameter(agePara){
+  var g_parameter = 1
+  function ageFactor(){
     var factorAge = 1//Reset g_parameter before each calculation
-    if(agePara>=21 && agePara<=30){
+    if(age>=21 && age<=30){
       factorAge=1.2035;	//if user age is 21-30 then g-value is 1.2035
-    }else if(agePara<=40){
+    }else if(age<=40){
       factorAge=1.0705;  //if user age is 31-40 then g-value is 1.0705
-    }else if(agePara<=50){
+    }else if(age<=50){
       factorAge=0.85655;  //if user age is 41-50 then g-value is 0.85655
-    }else if(agePara<=60){
+    }else if(age<=60){
       factorAge=1.0228;  //if user age is 51-60 then g-value is 1.0228
-    }else if(agePara<=70){
+    }else if(age<=70){
       factorAge=1.0248;  //if user age is 61-70 then g-value is 1.0248
-    }else if(agePara<=80){
+    }else if(age<=80){
       factorAge=1.01945;  //if user age is 71-80 then g-value is 1.01945
-    }else if(agePara<=90){
+    }else if(age<=90){
       factorAge=1.17735;  //if user age is 81-90 then g-value is 1.17735
-    }else if(agePara<=100){
+    }else if(age<=100){
       factorAge=1.32845;  //if user age is 91-100 then g-value is 1.32845
     }else{
       factorAge=1
     }
-    gPara = gPara*factorAge
-    return gPara
+    return factorAge
   }
-  function erAndPr(erPara,prPara){
+  function erAndPrFactor(){
       var gPara = new Array()
       gPara["er0pr0"]=1
       gPara["er0pr1"]=0.9166
@@ -140,19 +150,313 @@ function LifeMathCal(){
       gPara["er2pr0"]=1.1753
       gPara["er2pr1"]=1.0131
       gPara["er2pr2"]=1.1904
-      return gPara["er"+erPara+"pr"+prPara]
+      return gPara["er"+er+"pr"+pr]
   }
-  function her(herPara){
+  function herFactor(){
     var gPara = [1,1.515,0.9662]
-    if(herPara <= 2 && herPara>=0){
-      return gPara[herPara]
+    if(her <= 2 && her>=0){
+      return gPara[her]
     }else{
       console.log("herPara is wrong")
       return 1
     }
   }
-  function his(hisPara){
+  function hisFactor(){
     var gPara = [1,1.04495,0.97825,0.8624,0.42355,0.55305,0.2639,0.84305,1.51235,3.1544,1.42765,0.49,0.70395,0.8505,0.14972]
-    return gPara[hisPara]
+    return gPara[his]
   }
+
+  function gradeFactor(){
+    var gPara = [1,0.41345,0.8267,1.11584,1.23275]
+    return gPara[grade]
+  }
+  g_parameter = ageFactor()*erAndPrFactor()*herFactor()*hisFactor()*gradeFactor()
+  /*********************************************************************
+  *  STEP 2.b 	The program calculates the 15-year Kaplan-Meier cancer death rate, L, using the SNAP method and the product of the g parameters
+  * Calculates lethality of primary breast cancer tumor (L_primary), lethality of nodes (L_nodes), and 15-year Kaplan Meier cancer * specific death rate (L_breastcancer_KM)
+  * Second L_breastcancer_KM function adjusts for threatment effects
+  ***************************************************************************/
+  L_primary = 1 - Math.exp(-Qs*g_parameter*j_primary*Math.pow(dia*10,Z))
+  L_nodes = 1 - Math.exp(-nnum*R)
+  L_breastcancer_KM = L_primary + L_nodes - (L_primary*L_nodes)
+
+  /*********************************************************************
+  * STEPs 2.c, 2.d, & 2.e calculate cancer death rate in each of the 15 years following diagnosis
+  * Calculates yearly lethalities due to breast cancer and other causes
+  ***************************************************************************/
+  function yearlyDeath(){
+    for (var i=1; i<=15; i++) {
+      //STEP 2.c calculates cancer death distribution by multiplying 15yr KM cancer death rate by expected BRCA yearly lethality
+      //percentage of overall cancer deaths occuring in the given year is computed, and cumulatively summed
+      cancer_death_dist_cumm[i] = cancer_death_dist_cumm[i-1] + L_breastcancer_distribution[i-1]*L_breastcancer_KM;
+      //cancer-specific hazard is computed as the chance of cancer death divided by cancer-specific survival to that point
+      cancer_death_hazard[i] = L_breastcancer_distribution[i-1]*L_breastcancer_KM / (1-cancer_death_dist_cumm[i-1]);
+
+      L_breastcancer_death_yearly[i]=remaining_percentage[i-1] * cancer_death_hazard[i];
+      //STEP 2.d calculates non-BRCA death rate by multiplying the fraction of patients not dying of cancer by the yearly risk of death due to non-cancer causes for the given age
+      if (age==0){
+        L_nonbreastcancer_prob[i]=0;
+      } else {
+        L_nonbreastcancer_prob[i]=nvsr_death_prob_yearly[i+age];
+      }
+      L_nonbreastcancer_death_yearly[i]=(remaining_percentage[i-1] - L_breastcancer_death_yearly[i]) *L_nonbreastcancer_prob[i];
+      //STEP 2.e calculates overall death rate by adding breast cancer deaths to non-breast cancer deaths
+      L_overall_death_yearly[i]=L_breastcancer_death_yearly[i]+L_nonbreastcancer_death_yearly[i];
+      remaining_percentage[i]=remaining_percentage[i-1]-L_overall_death_yearly[i];
+    }
+  }
+  /********************************************************************
+  * STEP 2.f  Calculate 15 values for cumulative breast cancer, non-breast cancer, and total death rates by summing the respective yearly values computed in the steps above.
+  ****************************************************************************/
+  function cumulativeDeath(){
+    for(var i=1;i<=15;i++) {
+    	L_cancer_death_cumm[i]=L_cancer_death_cumm[i-1]+L_breastcancer_death_yearly[i];
+    	L_noncancer_death_cumm[i]=L_noncancer_death_cumm[i-1]+L_nonbreastcancer_death_yearly[i];
+    	L_overall_death_cumm[i]=L_overall_death_cumm[i-1]+L_overall_death_yearly[i];
+    }
+  }
+
+  /********************************************************************
+  * STEP 3   Calculate the mean number of years of life left that can be expected for the cancer patient
+  ****************************************************************************/
+  /********************************************************************
+  * STEP 3.a   Calculate the life expectancy for the cancer patient by multiplying the chance of dying in each of the years 1-15 by the number of years survived to that point.  Then add the NVSR life expectancy for people 15 years older than the patient's current age, multiplied by the patients chance of surviving 15 years.
+  ****************************************************************************/
+  function lifeExpectation(){
+    for (var i=1; i<=15; i++){
+        calc_life_expectation = calc_life_expectation + L_overall_death_yearly[i] * (i-0.5);
+    }
+    calc_life_expectation = calc_life_expectation + (1 - L_overall_death_cumm[15]) * (nvsr_life_expect[age + 15] +15)
+  }
+  /********************************************************************
+  * STEP 3.b   The program calculates the expected years of life lost due to cancer, by subtracting the calculated life expectancy (step 3.a) from the NVSR-given life expectancy for the specified age.
+  ****************************************************************************/
+  expect_years_life_lost = nvsr_life_expect[age] - calc_life_expectation;
+  /***************************************************************
+  * Determine whether projections exceed 100 years of age, and remove such projections-- data is not projected to ages above 100
+  **************************************************************/
+  function deathDataTruncate(){
+    var age_difference = 100-age;
+
+    if (age_difference<15){
+    	for (var i=age_difference; i<=15; i++) {
+    		L_cancer_death_cumm[i]=L_cancer_death_cumm[age_difference];
+    		L_noncancer_death_cumm[i]=L_noncancer_death_cumm[age_difference];
+    		L_overall_death_cumm[i]=L_overall_death_cumm[age_difference];
+        L_cancer_death_cumm_therapy[i]=L_cancer_death_cumm_therapy[age_difference];
+    		L_noncancer_death_cumm_therapy[i]=L_noncancer_death_cumm_therapy[age_difference];
+    		L_overall_death_cumm_therapy[i]=L_overall_death_cumm_therapy[age_difference];
+    	}
+    }
+  }
+  function cumDeathTruncate(){
+    var j=0
+    var jTr=0
+    for (var i=0; i<15; i++) {
+    	if(L_overall_death_cumm[i]<1){
+    		j ++;
+    	}
+      if(L_overall_death_cumm_therapy[i]<1){
+    		jTr ++;
+    	}
+    }
+
+    if(L_overall_death_cumm[j]>=1) {
+    	for (var k=j;k<=15;k++) {
+    		L_overall_death_cumm[k]=1;
+    		L_cancer_death_cumm[k]=L_cancer_death_cumm[j];
+    		L_noncancer_death_cumm[k]=L_noncancer_death_cumm[j];
+    	}
+    }
+    if(L_overall_death_cumm_therapy[jTr]>=1) {
+    	for (k=jTr;k<=15;k++) {
+    		L_overall_death_cumm_therapy[k]=1;
+    		L_cancer_death_cumm_therapy[k]=L_cancer_death_cumm_therapy[jTr];
+    		L_noncancer_death_cumm_therapy[k]=L_noncancer_death_cumm_therapy[jTr];
+    	}
+    }
+  }
+  yearlyDeath();
+  cumulativeDeath();
+  lifeExpectation();
+  deathDataTruncate();
+  cumDeathTruncate();
+  /***************************************************
+  STEP 4  Calculate death rates with a specific therapy type
+  ********************************************************/
+  /***************************************************
+  STEP 4.a  Calculate the "risk-reduction" value based on the combination of therapies entered by the user and the information collected in steps 1.c and 1.d, consistent with the assumptions of Adjuvant!Online
+  ********************************************************/
+      /*********************************************************************
+      * The following code gives the effect of endocrine (hormonal) therapy.
+      ***************************************************************************/
+  function ageFactorTr(ageF){
+    var ageFactor = 0
+    if(ageF<50){
+      ageFactor = 0
+    }else if(ageF<60){
+      ageFactor = 1
+    }else if(ageF<=100){
+      ageFactor = 2
+    }else{
+      console.log("age is out of range:"+age)
+    }
+    return ageFactor
+  }
+  function endoTr(){
+    var ageFactor = ageFactorTr(age)
+    if(endo==0){
+      return 0
+    }else{
+    var endoTrFactor = new Array()
+    endoTrFactor["er0age0"]=0.20
+    endoTrFactor["er0age1"]=0.21
+    endoTrFactor["er0age2"]=0.23
+    endoTrFactor["er1age0"]=0.32
+    endoTrFactor["er1age1"]=0.32
+    endoTrFactor["er1age2"]=0.32
+    endoTrFactor["er2age0"]=0
+    endoTrFactor["er2age1"]=0
+    endoTrFactor["er2age2"]=0
+    return endoTrFactor["er"+er+"age"+ageFactor]
+    }
+  }
+
+  function chemoTr(){
+    var ageFactor = ageFactorTr(age)
+    var chemoTrFactor = new Array()
+    if(chemo == 0){
+      return 0
+    }else{
+      chemoTrFactor["ch1er0age0"] = 0.30
+      chemoTrFactor["ch1er0age1"] = 0.18
+      chemoTrFactor["ch1er0age2"] = 0.10
+      chemoTrFactor["ch1er1age0"] = 0.30
+      chemoTrFactor["ch1er1age1"] = 0.16
+      chemoTrFactor["ch1er1age2"] = 0.08
+      chemoTrFactor["ch1er2age0"] = 0.30
+      chemoTrFactor["ch1er2age1"] = 0.22
+      chemoTrFactor["ch1er2age2"] = 0.15
+
+      chemoTrFactor["ch2er0age0"] = 0.41
+      chemoTrFactor["ch2er0age1"] = 0.31
+      chemoTrFactor["ch2er0age2"] = 0.24
+      chemoTrFactor["ch2er1age0"] = 0.41
+      chemoTrFactor["ch2er1age1"] = 0.29
+      chemoTrFactor["ch2er1age2"] = 0.23
+      chemoTrFactor["ch2er2age0"] = 0.41
+      chemoTrFactor["ch2er2age1"] = 0.34
+      chemoTrFactor["ch2er2age2"] = 0.29
+
+      chemoTrFactor["ch3er0age0"] = 0.30
+      chemoTrFactor["ch3er0age1"] = 0.18
+      chemoTrFactor["ch3er0age2"] = 0.10
+      chemoTrFactor["ch3er1age0"] = 0.30
+      chemoTrFactor["ch3er1age1"] = 0.16
+      chemoTrFactor["ch3er1age2"] = 0.08
+      chemoTrFactor["ch3er2age0"] = 0.30
+      chemoTrFactor["ch3er2age1"] = 0.22
+      chemoTrFactor["ch3er2age2"] = 0.15
+
+      chemoTrFactor["ch4er0age0"] = 0.44
+      chemoTrFactor["ch4er0age1"] = 0.34
+      chemoTrFactor["ch4er0age2"] = 0.28
+      chemoTrFactor["ch4er1age0"] = 0.44
+      chemoTrFactor["ch4er1age1"] = 0.33
+      chemoTrFactor["ch4er1age2"] = 0.26
+      chemoTrFactor["ch4er2age0"] = 0.44
+      chemoTrFactor["ch4er2age1"] = 0.38
+      chemoTrFactor["ch4er2age2"] = 0.32
+
+      chemoTrFactor["ch5er0age0"] = 0.55
+      chemoTrFactor["ch5er0age1"] = 0.47
+      chemoTrFactor["ch5er0age2"] = 0.42
+      chemoTrFactor["ch5er1age0"] = 0.55
+      chemoTrFactor["ch5er1age1"] = 0.45
+      chemoTrFactor["ch5er1age2"] = 0.40
+      chemoTrFactor["ch5er2age0"] = 0.55
+      chemoTrFactor["ch5er2age1"] = 0.49
+      chemoTrFactor["ch5er2age2"] = 0.45
+      return chemoTrFactor["ch"+chemo+"er"+er+"age"+ageFactor]
+    }
+  }
+  /******************************************************
+  * Combine effect of endocrine therapy and chemotherapy
+  ******************************************************/
+  totaltherapyEffect = endoTr() + chemoTr() - (endoTr()*chemoTr())
+  L_breastcancer_KM_therapy=L_breastcancer_KM*(1-totaltherapyEffect);
+  /*********************************************************************
+  * STEP 4.b calculates 15 values for the breast cancer death rate with therapy in each of the 15 years after diagnosis by multiplying the 15-year Kaplan-Meier cancer death rate, L, (calculated in step 1) by the "risk-reduction" value computed above, and by the fraction of the total lethality which can be expected in each year(the 15-part step function described in step 2.a that captures the breast carcinoma hazard function).
+  ***************************************************************************/
+  function deathTrAddjust(){
+    for (i=1; i<=15; i++) {
+  		//percentage of overall cancer deaths occuring in the given year is computed, and cumulatively summed
+          cancer_death_dist_cumm[i] = cancer_death_dist_cumm[i-1] + L_breastcancer_distribution[i-1]*L_breastcancer_KM_therapy;
+          //cancer-specific hazard is computed as the chance of cancer death divided by cancer-specific survival to that point
+          cancer_death_hazard[i] = L_breastcancer_distribution[i-1]*L_breastcancer_KM_therapy / (1-cancer_death_dist_cumm[i-1]);
+
+          L_cancer_death_yearly_therapy[i]=remaining_percentage_therapy[i-1] * cancer_death_hazard[i];
+  		if (age==0){
+  			L_noncancer_prob_therapy[i]=0;
+  		} else {
+  			L_noncancer_prob_therapy[i]=nvsr_death_prob_yearly[i+age];
+  		}
+  		L_noncancer_death_yearly_therapy[i]=(remaining_percentage_therapy[i-1]-L_cancer_death_yearly_therapy[i]) *L_noncancer_prob_therapy[i];
+  		L_overall_death_yearly_therapy[i]=L_cancer_death_yearly_therapy[i]+L_noncancer_death_yearly_therapy[i];
+  		remaining_percentage_therapy[i]=remaining_percentage_therapy[i-1]-L_overall_death_yearly_therapy[i];
+
+  	} //end of yearly lethality calculator
+  }
+  /*********************************************************************
+  * STEP 4.c & 4d   Calculate 15 values for the cumulative breast cancer death rate and cumulative overall death rate in each of the 15 years after diagnosis by summing the respective yearly risks of cancer death, with therapy, (step 2) from the time of diagnosis.
+  ***************************************************************************/
+  function deathCumTrAddjust(){
+    for(i=1;i<=15;i++) {
+      L_cancer_death_cumm_therapy[i]=L_cancer_death_cumm_therapy[i-1]+L_cancer_death_yearly_therapy[i];
+      L_noncancer_death_cumm_therapy[i]=L_noncancer_death_cumm_therapy[i-1]+L_noncancer_death_yearly_therapy[i];
+      L_overall_death_cumm_therapy[i]=L_overall_death_cumm_therapy[i-1]+L_overall_death_yearly_therapy[i];
+    }	//end of lethality summation
+  }
+  /*********************************************************************
+  * STEP 5 Calculates the life expectancy gained from therapy
+  ***************************************************************************/
+  /********************************************************************
+  * STEP 5.a   Calculate the life expectancy for the cancer patient by multiplying the chance of dying in each of the years 1-15 by the number of years survived to that point.  Then add the NVSR life expectancy for people 15 years older than the patient's current age, multiplied by the patients chance of surviving 15 years.
+  ****************************************************************************/
+  function lifeExpect(){
+    calc_life_expectation_therapy = 0;
+    for (i=1; i<=15; i++){
+        calc_life_expectation_therapy = calc_life_expectation_therapy + L_overall_death_yearly_therapy[i] * (i-0.5);
+    }
+    calc_life_expectation_therapy = calc_life_expectation_therapy + (1 - L_overall_death_cumm_therapy[15]) * (nvsr_life_expect[age + 15] +15)
+  }
+
+  /*********************************************************************
+  * STEP 5.b   calculates the life expectancy gained from therapy by subtracting the mean life expectancy with therapy (step 2.e) from the mean life expectancy for the cancer patient (step 3).
+  ***************************************************************************/
+  function lifeExpectTr(){
+    expect_years_life_lost_therapy = nvsr_life_expect[age] - calc_life_expectation_therapy;
+
+    expect_life_saved_years=expect_years_life_lost-expect_years_life_lost_therapy;
+    expect_life_saved_days=expect_life_saved_years*365.25;
+  }
+
+  deathDataTruncate();
+  deathTrAddjust();
+  deathCumTrAddjust();
+  lifeExpect();
+  lifeExpectTr();
+  deathDataTruncate();
+  cumDeathTruncate();
+
+  console.log("death_reduction"+Math.round(totaltherapyEffect*1000) / 10)
+  console.log("life_expect"+Math.round(nvsr_life_expect[age]*10)/10)
+  console.log("expect_life_lost"+Math.round(expect_years_life_lost*10)/10)
+  console.log("expect_saved_years"+Math.round(expect_life_saved_years*10)/10)
+  console.log("expect_saved_days"+Math.round(expect_life_saved_days))
+  console.log("l_km"+Math.round(L_breastcancer_KM_therapy*1000)/10)
+  console.log("life_expect_with_cancer"+Math.round((nvsr_life_expect[age] - expect_years_life_lost)*10)/10)
+  console.log("l_expected"+Math.round(L_cancer_death_cumm_therapy[15]*1000)/10)
+  console.log("ageText"+age)
 }
+LifeMathCal();
