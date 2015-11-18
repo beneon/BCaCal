@@ -1,32 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-<script src="script/jquery-1.11.3.min.js"></script>
-<script src="model2.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- these 3 lines is must have -->
+  <meta name="description" content="">
+  <meta name="author" content="Ben">
+  <link rel="icon" href="../bootstrap/favicon.ico">
+  <title>bootstrap Testing</title>
+  <link href="bootstrap/css/normalize.css" rel="stylesheet">
+  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="BCaCss/inputTest.css" rel="stylesheet">
 </head>
-
 <body>
-  <h1>CalculatorBrain测试一下</h1>
-<div id="log">
-  <h3>Content:</h3>
-  <select class="form-control" id="er">
-    <option value="0">未知</option>
-    <option value="1">阳性</option>
-    <option value="2">阴性</option>
-  </select>
+
+<div class="container">
+<div class="row">
+<div class="col-xs-6 pull-left">
+<form class="form-horizontal">
+  <div class="panel panel-primary form-group">
+    <div class="panel-heading"><span class="glyphicon glyphicon-plus"></span>非肿瘤相关死亡危险因素</div>
+    <div class="panel-body">
+    <label for="age" class="col-sm-6 control-label">年龄</label>
+    <div class="col-sm-6 input-group">
+      <input type="number" class="form-control" id="age" placeholder="0">
+      <span class="input-group-addon addonFixedWidth">岁</span>
+    </div>
+    </div>
+  </div>
+  <div class="panel panel-primary form-group">
+    <div class="panel-heading"><span class="glyphicon glyphicon-plus"></span>肿瘤相关死亡危险因素</div>
+    <div class="panel-body">
+    <label for="diameter" class="col-sm-6 control-label">肿瘤直径</label>
+    <div class="col-sm-6 input-group">
+      <input type="number" class="form-control" id="diameter" placeholder="0">
+      <span class="input-group-addon addonFixedWidth">mm</span>
+    </div>
+    <label for="nodes" class="col-sm-6 control-label">阳性淋巴结数量</label>
+    <div class="col-sm-6 input-group">
+      <span class="input-group-addon">
+        <input type="checkbox" aria-label="已知" id="nodesKnown" onclick="makeEnable('nodes',this.checked)">
+      </span>
+      <input type="number" class="form-control" id="nodes" placeholder="0" disabled>
+      <span class="input-group-addon addonFixedWidth">个</span>
+    </div>
+    <label for="screen" class="col-sm-6 control-label">首诊发现方式</label>
+    <!-- <div class="col-sm-6"> -->
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="screen">
+        <option value="0">未知</option>
+        <option value="1">筛查</option>
+        <option value="2">有症状</option>
+      </select>
+    </div>
+
+    <label for="er" class="col-sm-6 control-label">ER</label>
+    <!-- <div class="col-sm-6"> -->
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="er">
+        <option value="0">未知</option>
+        <option value="1">阳性</option>
+        <option value="2">阴性</option>
+      </select>
+    </div>
+    <label for="pr" class="col-sm-6 control-label">PR</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="pr">
+        <option value="0">未知</option>
+        <option value="1">阳性</option>
+        <option value="2">阴性</option>
+      </select>
+    </div>
+    <label for="her" class="col-sm-6 control-label">HER2</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="her">
+        <option value="0">未知</option>
+        <option value="1">阳性</option>
+        <option value="2">阴性</option>
+      </select>
+    </div>
+    <label for="ki67" class="col-sm-6 control-label">Ki67</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="ki67">
+        <option value="0">未知</option>
+        <option value="1">阳性</option>
+        <option value="2">阴性</option>
+      </select>
+    </div>
+    <label for="hist" class="col-sm-6 control-label">组织学类型</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="hist">
+        <option value="0">未知</option>
+        <option value="1">ductal</option>
+        <option value="2">lobular</option>
+        <option value="3">intraductal+LCIS</option>
+        <option value="4">mucinous</option>
+        <option value="5">medullary</option>
+        <option value="6">tubular</option>
+        <option value="7">comedo</option>
+        <option value="8">scirrhous</option>
+        <option value="9">inflammatory</option>
+        <option value="10">paget's disease</option>
+        <option value="11">papillary</option>
+        <option value="12">cribiform</option>
+        <option value="13">apocrine</option>
+        <option value="14">phyllodes</option>
+      </select>
+    </div>
+    <label for="grade" class="col-sm-6 control-label">分化程度</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="grade">
+        <option value="0">未知</option>
+        <option value="1">高分化</option>
+        <option value="2">中分化</option>
+        <option value="3">低分化</option>
+        <option value="4">未分化</option>
+      </select>
+    </div>
+    </div>
+  </div>
+
+  <div class="panel panel-primary form-group">
+    <div class="panel-heading"><span class="glyphicon glyphicon-plus"></span>治疗相关因素</div>
+    <div class="panel-body">
+    <label for="hormonal" class="col-sm-6 control-label">内分泌治疗</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="hormonal">
+        <option value="0">无</option>
+        <option value="1">他莫昔芬</option>
+        <option value="2">芳香酶抑制剂</option>
+        <option value="3">tam to AI(他莫昔芬序贯芳香酶抑制剂？)</option>
+        <option value="4">ovarian bl(卵巢切除？)</option>
+        <option value="4">ovarian bl(卵巢切除？)合并他莫昔芬？</option>
+      </select>
+    </div>
+    <label for="chemo" class="col-sm-6 control-label">化疗</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="chemo">
+        <option value="0">无</option>
+        <option value="1">CMF-like</option>
+        <option value="2">Anthracyclines</option>
+        <option value="3">1st gen. regimens:</option>
+        <option value="3">&nbsp;&nbsp;CA*4</option>
+        <option value="3">&nbsp;&nbsp;CMF</option>
+        <option value="3">&nbsp;&nbsp;FE(50)C*6</option>
+        <option value="4">2nd gen. regimens:</option>
+        <option value="4">&nbsp;&nbsp;CA*4+T*4</option>
+        <option value="4">&nbsp;&nbsp;DC*4</option>
+        <option value="4">&nbsp;&nbsp;CEF*6</option>
+        <option value="4">&nbsp;&nbsp;CAF*6</option>
+        <option value="4">&nbsp;&nbsp;FAC*6</option>
+        <option value="4">&nbsp;&nbsp;FE(100)C*6</option>
+        <option value="4">&nbsp;&nbsp;E*4+CMF*4</option>
+        <option value="5">3rd gen. regimens:</option>
+        <option value="5">&nbsp;&nbsp;TAC*6</option>
+        <option value="5">&nbsp;&nbsp;FE(100)C*3+D*3</option>
+        <option value="5">&nbsp;&nbsp;dd CA*4+T*4</option>
+      </select>
+    </div>
+  </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-6 col-sm-6 noPadding">
+      <button type="button" class="btn btn-default btn-block" onclick="calculateUpdate()">计算</button>
+    </div>
+  </div>
+
+</form>
 </div>
-<div onclick="getTextAreaValues()">计算</div>
-<div onclick="testingGround()">跑一下</div>
+<div class="col-xs-6 pull-right">
+  <div class="panel panel-primary form-group">
+  <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span>计算结果</div>
+  <div class="panel-body">
+  </div>
+  </div>
+</div>
+</div>
+</div>
 
-<script>
-  function getTextAreaValues(){
-    console.log($("#er").val())
-    console.log(typeof $("#er").val())
+
+
+  <!-- core javascript -->
+  <script src="script/jquery-1.11.3.min.js"></script>
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="script/lifemathMod.js"></script>
+  <script src="script/modelUKMod.js"></script>
+  <script>
+  function calculateUpdate(){
+    // var age = parseInt($("#age").val())
+    // var dia = parseFloat($("#diameter").val())
+    // var nnum = parseInt($("#nodes").val())
+    // var er = parseInt($("#er").val())
+    // var pr = parseInt($("#pr").val())
+    // var her = parseInt($("#her").val())
+    // var his = parseInt($("#hist").val())
+    // var grade = parseInt($("#grade").val())
+    // var endo = parseInt($("#hormonal").val())
+    // var chemo = parseInt($("#chemo").val())
+    // var nknown = $("#nodesKnown").prop("checked")
+    // var detection = parseInt($("#screen").val())
+    // var ki67 = parseInt($("#ki67").val())
+    var age = 50
+    var dia = 3
+    var nnum = 1
+    var er = 1
+    var pr = 1
+    var her = 1
+    var his = 1
+    var grade = 1
+    var endo = 1
+    var chemo = 4
+    var nknown = true
+    var detection = 1
+    var ki67 = 1
+    function ModelLifeMathCal(){
+      var ModelLifeMath = new LifeMathCal()
+      ModelLifeMath.initial(age,dia,nnum,nknown,grade,er,her,pr,his,endo,chemo)
+      // ageP,diaP,nnumP,nodesKnownP,gradeP,erP,herP,prP,hisP,endoP,chemoP
+      ModelLifeMath.gParaCal();
+      ModelLifeMath.kmCal();
+      ModelLifeMath.expYL();
+      ModelLifeMath.yearlyDeath();
+      ModelLifeMath.cumulativeDeath();
+      ModelLifeMath.lifeExpectation();
+      ModelLifeMath.deathDataTruncate();
+      ModelLifeMath.cumDeathTruncate();
+      ModelLifeMath.combineEffect();
+      ModelLifeMath.deathDataTruncate();
+      ModelLifeMath.deathTrAddjust();
+      ModelLifeMath.deathCumTrAddjust();
+      ModelLifeMath.lifeExpect();
+      ModelLifeMath.lifeExpectTr();
+      ModelLifeMath.deathDataTruncate();
+      ModelLifeMath.cumDeathTruncate();
+      result = ModelLifeMath.dataOutput();
+      console.log(result)
+      return result;
+    }
+    function ModelUKCal(){
+      var ModelUK = new UkBcaCal()
+      var parameterOK = ModelUK.initial(age,dia,nnum,nknown,grade,er,her,chemo,detection,ki67)
+      // age,dia,nnum,nknown,grade,er,her,chemoGen,detection,ki67
+      if(parameterOK){
+        result = ModelUK.predict()
+        console.log(result)
+        return result
+      }else{
+        console.log("parameter not suitable for UK model calculation")
+      }
+    }
+    var lifeMathCalResult = ModelLifeMathCal()
+    var UKCalResult = ModelUKCal()
+
   }
-
-/*
-上面的是playground，下面弄一下model部分
-*/
-
-</script>
-
+  function makeEnable(target,isEnable){
+    $("#"+target).prop('disabled', !isEnable)
+    if(isEnable){
+      $("#"+target).focus()
+    }
+  }
+  </script>
 </body>
+</html>

@@ -1,9 +1,9 @@
-// 对于uk model来说如果er、her、ki67存在未知值的时候算法是会出错的,grade如果选择未分化的时候也会出错
+// 对于uk model来说如果her、ki67存在未知值的时候算法是会出错的,grade如果选择未分化的时候也会出错
 // 这个必须要在程序里面体现
 function StrArray(){
-  this.set:false,
-  this.val:[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-  valReset:function(){
+  this.set=false;
+  this.val=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+  this.valReset=function(){
     this.set = false;
     this.val = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
   }
@@ -19,7 +19,11 @@ function UkBcaCal(){
   this.chemoGen = 0;
   this.detection = 0;
   this.ki67 = 0;
-  this.hideChemo = false;
+
+  this.chemoGener = function(chemoPara){
+    var result = [0,null,null,null,2,3]
+    return result[chemoPara]
+  }
   this.chemoRed = [0.0,0.0,0.0,0.0];
   this.hormoRed = [0.0,0.0,0.0,0.0];
   this.blSurvival = [0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
@@ -35,20 +39,26 @@ function UkBcaCal(){
   this.cumOverallSurHormo=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
   this.cumOverallSurCandH=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
   this.cumOverallSurCHT=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-  this.initial = function(age,dia,nnum,grade,er,her,chemoGen,detection,ki67){
+  this.initial = function(age,dia,nnum,nknown,grade,er,her,chemoGen,detection,ki67){
     this.age=age;
     this.dia=dia;
     this.nnum=nnum;
+    this.nknown=nknown;
     this.grade=grade;
     this.er=er;
     this.her=her;
-    this.chemoGen=chemoGen;
+    this.chemoGen=this.chemoGener(chemoGen);
     this.detection=detection;
     this.ki67=ki67;
     this.cheHomRed();
     this._annuIncidence.valReset();
     this._annualIncNB.valReset();
     this._relHazard.valReset();
+    var parameterOK = true;
+    if(her==0 || ki67 == 0 || this.chemoGen == null){
+      parameterOK = false
+    }
+    return parameterOK
   };
   this.ki67_model=function(){
     var result = 0.0;
@@ -62,42 +72,42 @@ function UkBcaCal(){
   }
   this.erMod = new Array()
   this.herEr = new Array()
-  erMod[1]={
+  this.erMod[1]={
     //erPositive
     age: 0,
     node:  0.55850411,
     dia:  0.35537797,
     grade:  0.84479071,
-    screen:  -0.35779565,
+    detection:  -0.35779565,
     chemo:  -0.31066269,
     hormo:  -0.04842342,
     ki67_model:0
   };
-  erMod[2]={
+  this.erMod[2]={
     //erNegative
     age: 0,
     node:  0.43819463,
     dia:  0.36734320,
     grade:  0.40829403,
-    screen:  -0.15051922,
+    detection:  -0.15051922,
     chemo:  -0.20071834,
     hormo:  0.35787131,
     ki67_model:0
   };
-  erMod[0]={
+  this.erMod[0]={
     age: 0,
     node:  0,
     dia: 0,
     grade: 0,
-    screen:  0,
+    detection:  0,
     chemo:  0,
     hormo: 0,
     ki67_model:0
   }
-  herEr["er2her2"]=-0.0762;
-  herEr["er2her1"]=0.2413;
-  herEr["er1her2"]=[-0.052845376,-0.04630156,-0.039757744,-0.033213928,-0.026670112,-0.020126296,-0.01358248,-0.007038664,-0.000494848000000001,0.006048968]
-  herEr["er1her1"]=[0.607721824,0.53246794,0.457214056,0.381960172,0.306706288,0.231452404,0.15619852,0.080944636,0.00569075200000001,0.006048968]
+  this.herEr["er2her2"]=-0.0762;
+  this.herEr["er2her1"]=0.2413;
+  this.herEr["er1her2"]=[-0.052845376,-0.04630156,-0.039757744,-0.033213928,-0.026670112,-0.020126296,-0.01358248,-0.007038664,-0.000494848000000001,0.006048968]
+  this.herEr["er1her1"]=[0.607721824,0.53246794,0.457214056,0.381960172,0.306706288,0.231452404,0.15619852,0.080944636,0.00569075200000001,0.006048968]
   this.ager = function(){
     var age = this.age;
     var newAge=2;
@@ -261,7 +271,7 @@ function UkBcaCal(){
       var erMod = this.erMod[this.er];
       var her = this.her;
       var herEr = this.herEr;
-      var modelParams = [erMod.age,erMod.node,erMod.dia,erMod.grade,erMod.screen,erMod.chemo,erMod.hormo,erMod.ki67_model]
+      var modelParams = [erMod.age,erMod.node,erMod.dia,erMod.grade,erMod.detection,erMod.chemo,erMod.hormo,erMod.ki67_model]
       for (var n=0;n<patientParams.length;n++){
         relHazard0 += patientParams[n]*modelParams[n];
       }
@@ -271,7 +281,7 @@ function UkBcaCal(){
       if(her > 0){
         for(var n = 0;n<10;n++){
           if(this.er == 1){
-            relHarzard[n]+=herEr["er1her"+her][n]
+            relHazard[n]+=herEr["er1her"+her][n]
           }else if(this.er == 2){
               relHazard[n]+=herEr["er2her"+her]
           }else{

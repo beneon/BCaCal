@@ -80,6 +80,19 @@ function LifeMathCal(){
   // * calc_person_years_lived_between_years: calculated number of person years lived by women with breast cancer between two consecutive years
   // * calc_total_num_of_person_years_lived_above: caculated number of person years lived by women with breast cancer above a certain age
 
+
+//parameters
+  var age =  0
+  var dia =  0
+  var nnum= 0
+  var er = 0
+  var pr = 0
+  var her = 0
+  var his = 0
+  var grade = 0
+  var endo= 0
+  var chemo= 0
+  var nodesKnown = false
   /********************************************************************
   *Initialize Qs, R, and j_primary variables depending on if treatments are selected
   * Variable       Standard Therapy         No Therapy
@@ -91,17 +104,7 @@ function LifeMathCal(){
   var endotherapyEffect=0; //Resets endotherapy effect before every calculation to no endotherapy
   var chemotherapyEffect=0; //Resets endotherapy effect before every calculation to no chemotherapy
   var totaltherapyEffect=0; //Resets total therapy effect before every calculation to no therapy
-  var age =  50
-  var dia =  1
-  var nnum= 0
-  var er = 0
-  var pr = 0
-  var her = 0
-  var his = 0
-  var grade = 0
-  var endo= 0
-  var chemo= 2
-  var nodesKnown = false
+
   var j_primary = nodesKnown?0.8057:1
   var L_primary = 0
   var L_nodes = 0
@@ -111,6 +114,19 @@ function LifeMathCal(){
   var expect_years_life_lost_therapy=0
   var expect_life_saved_years=0
   var expect_life_saved_days=0
+  this.initial = function(ageP,diaP,nnumP,nodesKnownP,gradeP,erP,herP,prP,hisP,endoP,chemoP){
+    age = ageP
+    dia = diaP
+    nnum = nnumP
+    nodesKnown = nodesKnownP
+    grade=gradeP
+    er=erP
+    her=herP
+    pr=prP
+    his=hisP
+    endo=endoP
+    chemo=chemoP
+  }
   // If nodal status is unknown, j_primary is set to 1
   /********************************************************************
    STEP 2.a 	The program loads the g parameters determined by the user input, and computes the product of all of them
@@ -473,22 +489,22 @@ function LifeMathCal(){
     return result
   }
 }
-
-var c = new LifeMathCal();
-c.gParaCal();
-c.kmCal();
-c.expYL();
-c.yearlyDeath();
-c.cumulativeDeath();
-c.lifeExpectation();
-c.deathDataTruncate();
-c.cumDeathTruncate();
-c.combineEffect();
-c.deathDataTruncate();
-c.deathTrAddjust();
-c.deathCumTrAddjust();
-c.lifeExpect();
-c.lifeExpectTr();
-c.deathDataTruncate();
-c.cumDeathTruncate();
-console.log(c.dataOutput());
+//
+// var c = new LifeMathCal();
+// c.gParaCal();
+// c.kmCal();
+// c.expYL();
+// c.yearlyDeath();
+// c.cumulativeDeath();
+// c.lifeExpectation();
+// c.deathDataTruncate();
+// c.cumDeathTruncate();
+// c.combineEffect();
+// c.deathDataTruncate();
+// c.deathTrAddjust();
+// c.deathCumTrAddjust();
+// c.lifeExpect();
+// c.lifeExpectTr();
+// c.deathDataTruncate();
+// c.cumDeathTruncate();
+// console.log(c.dataOutput());
