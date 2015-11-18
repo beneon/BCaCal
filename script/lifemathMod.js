@@ -116,7 +116,8 @@ function LifeMathCal(){
    STEP 2.a 	The program loads the g parameters determined by the user input, and computes the product of all of them
   ****************************************************************************/
   var g_parameter = 1
-  function ageFactor(){
+
+  this.ageFactor = function(){
     var factorAge = 1//Reset g_parameter before each calculation
     if(age>=21 && age<=30){
       factorAge=1.2035;	//if user age is 21-30 then g-value is 1.2035
@@ -139,7 +140,7 @@ function LifeMathCal(){
     }
     return factorAge
   }
-  function erAndPrFactor(){
+  this.erAndPrFactor = function(){
       var gPara = new Array()
       gPara["er0pr0"]=1
       gPara["er0pr1"]=0.9166
@@ -152,7 +153,7 @@ function LifeMathCal(){
       gPara["er2pr2"]=1.1904
       return gPara["er"+er+"pr"+pr]
   }
-  function herFactor(){
+  this.herFactor = function(){
     var gPara = [1,1.515,0.9662]
     if(her <= 2 && her>=0){
       return gPara[her]
@@ -161,30 +162,35 @@ function LifeMathCal(){
       return 1
     }
   }
-  function hisFactor(){
+  this.hisFactor = function(){
     var gPara = [1,1.04495,0.97825,0.8624,0.42355,0.55305,0.2639,0.84305,1.51235,3.1544,1.42765,0.49,0.70395,0.8505,0.14972]
     return gPara[his]
   }
 
-  function gradeFactor(){
+  this.gradeFactor = function(){
     var gPara = [1,0.41345,0.8267,1.11584,1.23275]
     return gPara[grade]
   }
-  g_parameter = ageFactor()*erAndPrFactor()*herFactor()*hisFactor()*gradeFactor()
+
+  this.gParaCal = function(){
+    g_parameter = this.ageFactor()*this.erAndPrFactor()*this.herFactor()*this.hisFactor()*this.gradeFactor()
+  }
   /*********************************************************************
   *  STEP 2.b 	The program calculates the 15-year Kaplan-Meier cancer death rate, L, using the SNAP method and the product of the g parameters
   * Calculates lethality of primary breast cancer tumor (L_primary), lethality of nodes (L_nodes), and 15-year Kaplan Meier cancer * specific death rate (L_breastcancer_KM)
   * Second L_breastcancer_KM function adjusts for threatment effects
   ***************************************************************************/
-  L_primary = 1 - Math.exp(-Qs*g_parameter*j_primary*Math.pow(dia*10,Z))
-  L_nodes = 1 - Math.exp(-nnum*R)
-  L_breastcancer_KM = L_primary + L_nodes - (L_primary*L_nodes)
+  this.kmCal = function(){
+    L_primary = 1 - Math.exp(-Qs*g_parameter*j_primary*Math.pow(dia*10,Z))
+    L_nodes = 1 - Math.exp(-nnum*R)
+    L_breastcancer_KM = L_primary + L_nodes - (L_primary*L_nodes)
+  }
 
   /*********************************************************************
   * STEPs 2.c, 2.d, & 2.e calculate cancer death rate in each of the 15 years following diagnosis
   * Calculates yearly lethalities due to breast cancer and other causes
   ***************************************************************************/
-  function yearlyDeath(){
+  this.yearlyDeath = function(){
     for (var i=1; i<=15; i++) {
       //STEP 2.c calculates cancer death distribution by multiplying 15yr KM cancer death rate by expected BRCA yearly lethality
       //percentage of overall cancer deaths occuring in the given year is computed, and cumulatively summed
@@ -208,7 +214,7 @@ function LifeMathCal(){
   /********************************************************************
   * STEP 2.f  Calculate 15 values for cumulative breast cancer, non-breast cancer, and total death rates by summing the respective yearly values computed in the steps above.
   ****************************************************************************/
-  function cumulativeDeath(){
+  this.cumulativeDeath = function(){
     for(var i=1;i<=15;i++) {
     	L_cancer_death_cumm[i]=L_cancer_death_cumm[i-1]+L_breastcancer_death_yearly[i];
     	L_noncancer_death_cumm[i]=L_noncancer_death_cumm[i-1]+L_nonbreastcancer_death_yearly[i];
@@ -222,7 +228,7 @@ function LifeMathCal(){
   /********************************************************************
   * STEP 3.a   Calculate the life expectancy for the cancer patient by multiplying the chance of dying in each of the years 1-15 by the number of years survived to that point.  Then add the NVSR life expectancy for people 15 years older than the patient's current age, multiplied by the patients chance of surviving 15 years.
   ****************************************************************************/
-  function lifeExpectation(){
+  this.lifeExpectation = function(){
     for (var i=1; i<=15; i++){
         calc_life_expectation = calc_life_expectation + L_overall_death_yearly[i] * (i-0.5);
     }
@@ -231,11 +237,13 @@ function LifeMathCal(){
   /********************************************************************
   * STEP 3.b   The program calculates the expected years of life lost due to cancer, by subtracting the calculated life expectancy (step 3.a) from the NVSR-given life expectancy for the specified age.
   ****************************************************************************/
-  expect_years_life_lost = nvsr_life_expect[age] - calc_life_expectation;
+  this.expYL = function(){
+    expect_years_life_lost = nvsr_life_expect[age] - calc_life_expectation;
+  }
   /***************************************************************
   * Determine whether projections exceed 100 years of age, and remove such projections-- data is not projected to ages above 100
   **************************************************************/
-  function deathDataTruncate(){
+  this.deathDataTruncate = function(){
     var age_difference = 100-age;
 
     if (age_difference<15){
@@ -249,7 +257,7 @@ function LifeMathCal(){
     	}
     }
   }
-  function cumDeathTruncate(){
+  this.cumDeathTruncate = function(){
     var j=0
     var jTr=0
     for (var i=0; i<15; i++) {
@@ -276,11 +284,11 @@ function LifeMathCal(){
     	}
     }
   }
-  yearlyDeath();
-  cumulativeDeath();
-  lifeExpectation();
-  deathDataTruncate();
-  cumDeathTruncate();
+  // yearlyDeath();
+  // cumulativeDeath();
+  // lifeExpectation();
+  // deathDataTruncate();
+  // cumDeathTruncate();
   /***************************************************
   STEP 4  Calculate death rates with a specific therapy type
   ********************************************************/
@@ -290,7 +298,7 @@ function LifeMathCal(){
       /*********************************************************************
       * The following code gives the effect of endocrine (hormonal) therapy.
       ***************************************************************************/
-  function ageFactorTr(ageF){
+  this.ageFactorTr = function(ageF){
     var ageFactor = 0
     if(ageF<50){
       ageFactor = 0
@@ -303,8 +311,8 @@ function LifeMathCal(){
     }
     return ageFactor
   }
-  function endoTr(){
-    var ageFactor = ageFactorTr(age)
+  this.endoTr = function(){
+    var ageFactor = this.ageFactorTr(age)
     if(endo==0){
       return 0
     }else{
@@ -322,8 +330,8 @@ function LifeMathCal(){
     }
   }
 
-  function chemoTr(){
-    var ageFactor = ageFactorTr(age)
+  this.chemoTr = function(){
+    var ageFactor = this.ageFactorTr(age)
     var chemoTrFactor = new Array()
     if(chemo == 0){
       return 0
@@ -383,12 +391,14 @@ function LifeMathCal(){
   /******************************************************
   * Combine effect of endocrine therapy and chemotherapy
   ******************************************************/
-  totaltherapyEffect = endoTr() + chemoTr() - (endoTr()*chemoTr())
-  L_breastcancer_KM_therapy=L_breastcancer_KM*(1-totaltherapyEffect);
+  this.combineEffect = function(){
+    totaltherapyEffect = this.endoTr() + this.chemoTr() - (this.endoTr()*this.chemoTr())
+    L_breastcancer_KM_therapy=L_breastcancer_KM*(1-totaltherapyEffect);
+  }
   /*********************************************************************
   * STEP 4.b calculates 15 values for the breast cancer death rate with therapy in each of the 15 years after diagnosis by multiplying the 15-year Kaplan-Meier cancer death rate, L, (calculated in step 1) by the "risk-reduction" value computed above, and by the fraction of the total lethality which can be expected in each year(the 15-part step function described in step 2.a that captures the breast carcinoma hazard function).
   ***************************************************************************/
-  function deathTrAddjust(){
+  this.deathTrAddjust = function(){
     for (i=1; i<=15; i++) {
   		//percentage of overall cancer deaths occuring in the given year is computed, and cumulatively summed
           cancer_death_dist_cumm[i] = cancer_death_dist_cumm[i-1] + L_breastcancer_distribution[i-1]*L_breastcancer_KM_therapy;
@@ -410,7 +420,7 @@ function LifeMathCal(){
   /*********************************************************************
   * STEP 4.c & 4d   Calculate 15 values for the cumulative breast cancer death rate and cumulative overall death rate in each of the 15 years after diagnosis by summing the respective yearly risks of cancer death, with therapy, (step 2) from the time of diagnosis.
   ***************************************************************************/
-  function deathCumTrAddjust(){
+  this.deathCumTrAddjust = function(){
     for(i=1;i<=15;i++) {
       L_cancer_death_cumm_therapy[i]=L_cancer_death_cumm_therapy[i-1]+L_cancer_death_yearly_therapy[i];
       L_noncancer_death_cumm_therapy[i]=L_noncancer_death_cumm_therapy[i-1]+L_noncancer_death_yearly_therapy[i];
@@ -423,7 +433,7 @@ function LifeMathCal(){
   /********************************************************************
   * STEP 5.a   Calculate the life expectancy for the cancer patient by multiplying the chance of dying in each of the years 1-15 by the number of years survived to that point.  Then add the NVSR life expectancy for people 15 years older than the patient's current age, multiplied by the patients chance of surviving 15 years.
   ****************************************************************************/
-  function lifeExpect(){
+  this.lifeExpect = function(){
     calc_life_expectation_therapy = 0;
     for (i=1; i<=15; i++){
         calc_life_expectation_therapy = calc_life_expectation_therapy + L_overall_death_yearly_therapy[i] * (i-0.5);
@@ -434,29 +444,51 @@ function LifeMathCal(){
   /*********************************************************************
   * STEP 5.b   calculates the life expectancy gained from therapy by subtracting the mean life expectancy with therapy (step 2.e) from the mean life expectancy for the cancer patient (step 3).
   ***************************************************************************/
-  function lifeExpectTr(){
+  this.lifeExpectTr = function(){
     expect_years_life_lost_therapy = nvsr_life_expect[age] - calc_life_expectation_therapy;
 
     expect_life_saved_years=expect_years_life_lost-expect_years_life_lost_therapy;
     expect_life_saved_days=expect_life_saved_years*365.25;
   }
 
-  deathDataTruncate();
-  deathTrAddjust();
-  deathCumTrAddjust();
-  lifeExpect();
-  lifeExpectTr();
-  deathDataTruncate();
-  cumDeathTruncate();
-
-  console.log("death_reduction"+Math.round(totaltherapyEffect*1000) / 10)
-  console.log("life_expect"+Math.round(nvsr_life_expect[age]*10)/10)
-  console.log("expect_life_lost"+Math.round(expect_years_life_lost*10)/10)
-  console.log("expect_saved_years"+Math.round(expect_life_saved_years*10)/10)
-  console.log("expect_saved_days"+Math.round(expect_life_saved_days))
-  console.log("l_km"+Math.round(L_breastcancer_KM_therapy*1000)/10)
-  console.log("life_expect_with_cancer"+Math.round((nvsr_life_expect[age] - expect_years_life_lost)*10)/10)
-  console.log("l_expected"+Math.round(L_cancer_death_cumm_therapy[15]*1000)/10)
-  console.log("ageText"+age)
+  // deathDataTruncate();
+  // deathTrAddjust();
+  // deathCumTrAddjust();
+  // lifeExpect();
+  // lifeExpectTr();
+  // deathDataTruncate();
+  // cumDeathTruncate();
+  //
+  this.dataOutput = function(){
+    var result = new Array()
+    result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
+    result["life_expect"] = Math.round(nvsr_life_expect[age]*10)/10
+    result["expect_life_lost"] = Math.round(expect_years_life_lost*10)/10
+    result["expect_saved_years"] = Math.round(expect_life_saved_years*10)/10
+    result["expect_saved_days"] = Math.round(expect_life_saved_days)
+    result["l_km"] = Math.round(L_breastcancer_KM_therapy*1000)/10
+    result["life_expect_with_cancer"] = Math.round((nvsr_life_expect[age] - expect_years_life_lost)*10)/10
+    result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
+    result["l_expected"] = Math.round(L_cancer_death_cumm_therapy[15]*1000)/10
+    return result
+  }
 }
-LifeMathCal();
+
+var c = new LifeMathCal();
+c.gParaCal();
+c.kmCal();
+c.expYL();
+c.yearlyDeath();
+c.cumulativeDeath();
+c.lifeExpectation();
+c.deathDataTruncate();
+c.cumDeathTruncate();
+c.combineEffect();
+c.deathDataTruncate();
+c.deathTrAddjust();
+c.deathCumTrAddjust();
+c.lifeExpect();
+c.lifeExpectTr();
+c.deathDataTruncate();
+c.cumDeathTruncate();
+console.log(c.dataOutput());

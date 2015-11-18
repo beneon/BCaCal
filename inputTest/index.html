@@ -45,6 +45,15 @@
       <input type="number" class="form-control" id="nodes" placeholder="0" disabled>
       <span class="input-group-addon addonFixedWidth">个</span>
     </div>
+    <label for="screen" class="col-sm-6 control-label">首诊发现方式</label>
+    <!-- <div class="col-sm-6"> -->
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="screen">
+        <option value="0">未知</option>
+        <option value="1">筛查</option>
+        <option value="2">有症状</option>
+      </select>
+    </div>
 
     <label for="er" class="col-sm-6 control-label">ER</label>
     <!-- <div class="col-sm-6"> -->
@@ -71,7 +80,15 @@
         <option value="2">阴性</option>
       </select>
     </div>
-<label for="hist" class="col-sm-6 control-label">组织学类型</label>
+    <label for="ki67" class="col-sm-6 control-label">Ki67</label>
+    <div class="col-sm-6 noPadding">
+      <select class="form-control" id="ki67">
+        <option value="0">未知</option>
+        <option value="1">阳性</option>
+        <option value="2">阴性</option>
+      </select>
+    </div>
+    <label for="hist" class="col-sm-6 control-label">组织学类型</label>
     <div class="col-sm-6 noPadding">
       <select class="form-control" id="hist">
         <option value="0">未知</option>

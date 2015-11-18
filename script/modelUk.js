@@ -1,20 +1,34 @@
-var StrArray = {
-  set:false,
-  val:[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+function StrArray(){
+  this.set:false,
+  this.val:[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
   valReset:function(){
     this.set = false;
     this.val = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
   }
-  //这个是用来储存一个10个元素的数组，同时还另外加了一个set这个boolen，相当于一个optional的感觉
+}
+function UkBcaCal(){
+  this.age = 0;
+  this.dia = 0;
+  this.nnum = 0;
+  this.grade = 0;
+  this.er = 0;
+  this.her = 0;
+  this.chemoGen = 0;
+  this.detection = 0;
+  this.ki67 = 0;
+  this.hideChemo = false;
+  this.chemoRed = [0.0,0.0,0.0,0.0];
+  this.hormoRed = [0.0,0.0,0.0,0.0];
+  this.blSurvival = [0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
+  this.ernIntSurvival=[0.9982,0.9939,0.9941,0.9955,0.9956,0.9966,0.9985,0.99845,0.9985,0.99845];
+  this.erpIntSurvival=[0.9999,0.9997,0.9994,0.9992,0.9992,0.9993,0.9992,0.9988,0.9990,0.9990];
+  this.ki67_pos = 0.149035579160488;
+  this.ki67_neg = -0.113328685307003;
+  this._annuIncidence = new StrArray();
+  this._annualIncNB=new StrArray();
+  this._relHazard=new StrArray();
 }
 var UkBcaCal = {
-    age:0,dia:0,nnum:0,grade:0,er:0,her:0,
-    chemoGen:0,detection:0,ki67:0,hideChemo:false,
-    chemoRed:[0.0,0.0,0.0,0.0],
-    hormoRed:[0.0,0.0,0.0,0.0],
-    blSurvival:[0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255],
-    ernIntSurvival:[0.9982,0.9939,0.9941,0.9955,0.9956,0.9966,0.9985,0.99845,0.9985,0.99845],
-    erpIntSurvival:[0.9999,0.9997,0.9994,0.9992,0.9992,0.9993,0.9992,0.9988,0.9990,0.9990],
     ki67_pos:0.149035579160488,
     ki67_neg:-0.113328685307003,
     _annuIncidence:{
