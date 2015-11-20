@@ -1,4 +1,19 @@
 <body>
-  <script src="script/lifemathMod.js">
+  <form>
+    <div>Hormone<input type="checkbox" name="h" value="resultH" checked="checked" onclick="logState(this)"/></div>
+    <div>Chemo<input type="checkbox" name="c" value="resultC" checked="checked" onclick="logState(this)"/></div>
+    <div>Taz<input type="checkbox" name="t" value="resultT" checked="checked" onclick="logState(this)"/></div>
+  </form>
+  <p class="resultH">通过接受辅助内分泌治疗，额外有<span id="s10Hormone"></span>人可以生存</p>
+  <p class="resultC">通过接受辅助化疗，额外有<span id="s10Chemo"></span>人可以生存</p>
+  <p class="resultH resultC">通过接受辅助内分泌治疗联合化疗，额外有<span id="s10CandH"></span>人可以生存</p>
+  <p class="resultC resultT">通过辅助性<span class="resultH">内分泌治疗、</span>化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
+  <script src="script/jquery-1.11.3.min.js"></script>
+  <script>
+    function logState(eSrc){
+      console.log(eSrc.value+": "+eSrc.checked)
+      $("."+eSrc.value).css("display",eSrc.checked?"":"none")
+    }
   </script>
+
 </body>
