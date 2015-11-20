@@ -7,7 +7,7 @@
   <!-- these 3 lines is must have -->
   <meta name="description" content="">
   <meta name="author" content="Ben">
-  <link rel="icon" href="../bootstrap/favicon.ico">
+  <link rel="icon" href="bootstrap/favicon.ico">
   <title>bootstrap Testing</title>
   <link href="bootstrap/css/normalize.css" rel="stylesheet">
   <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -172,7 +172,24 @@
 <div class="col-xs-6 pull-right">
   <div class="panel panel-primary form-group">
   <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span>计算结果</div>
-  <div class="panel-body">
+  <div class="panel-body" id="resultDisp">
+    <div id="ukModelResult">
+    <h2 class="h4">UK模型结果</h2>
+    <h3 class="h5">5年生存情况</h3>
+    <p>在术后第5年，100名女性中<span id="s10overall"></span>人在未接受辅助治疗的情况下生存</p>
+    <p class="resultH">通过接受辅助内分泌治疗，额外有<span id="s10Hormone"></span>人可以生存</p>
+    <p class="resultC">通过接受辅助化疗，额外有<span id="s10Chemo"></span>人可以生存</p>
+    <p class="resultH resultC">通过接受辅助内分泌治疗联合化疗，额外有<span id="s10CandH"></span>人可以生存</p>
+    <p class="resultH resultC resultT">通过辅助性内分泌治疗、化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
+
+
+    <h3 class="h5">10年生存情况</h3>
+    <p>在术后第10年，100名女性中<span id="s10overall"></span>人在未接受辅助治疗的情况下生存</p>
+    <p class="resultH">通过接受辅助内分泌治疗，额外有<span id="s10Hormone"></span>人可以生存</p>
+    <p class="resultC">通过接受辅助化疗，额外有<span id="s10Chemo"></span>人可以生存</p>
+    <p class="resultH resultC">通过接受辅助内分泌治疗联合化疗，额外有<span id="s10CandH"></span>人可以生存</p>
+    <p class="resultH resultC resultT">通过辅助性内分泌治疗、化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
+    </div>
   </div>
   </div>
 </div>
@@ -187,9 +204,11 @@
   <script src="script/lifemathMod.js"></script>
   <script src="script/modelUKMod.js"></script>
   <script>
+
+
   function calculateUpdate(){
     // var age = parseInt($("#age").val())
-    // var dia = parseFloat($("#diameter").val())
+    // var dia = parseFloat($("#diameter").val())/10
     // var nnum = parseInt($("#nodes").val())
     // var er = parseInt($("#er").val())
     // var pr = parseInt($("#pr").val())
@@ -214,32 +233,18 @@
     var nknown = true
     var detection = 1
     var ki67 = 1
+    var ModelLifeMath = new LifeMathCal()
+    var ModelUK = new UkBcaCal()
+
     function ModelLifeMathCal(){
-      var ModelLifeMath = new LifeMathCal()
       ModelLifeMath.initial(age,dia,nnum,nknown,grade,er,her,pr,his,endo,chemo)
       // ageP,diaP,nnumP,nodesKnownP,gradeP,erP,herP,prP,hisP,endoP,chemoP
-      ModelLifeMath.gParaCal();
-      ModelLifeMath.kmCal();
-      ModelLifeMath.expYL();
-      ModelLifeMath.yearlyDeath();
-      ModelLifeMath.cumulativeDeath();
-      ModelLifeMath.lifeExpectation();
-      ModelLifeMath.deathDataTruncate();
-      ModelLifeMath.cumDeathTruncate();
-      ModelLifeMath.combineEffect();
-      ModelLifeMath.deathDataTruncate();
-      ModelLifeMath.deathTrAddjust();
-      ModelLifeMath.deathCumTrAddjust();
-      ModelLifeMath.lifeExpect();
-      ModelLifeMath.lifeExpectTr();
-      ModelLifeMath.deathDataTruncate();
-      ModelLifeMath.cumDeathTruncate();
-      result = ModelLifeMath.dataOutput();
+      ModelLifeMath.calculateSequence()
+      result = ModelLifeMath.dataOutput()
       console.log(result)
-      return result;
+      return result
     }
     function ModelUKCal(){
-      var ModelUK = new UkBcaCal()
       var parameterOK = ModelUK.initial(age,dia,nnum,nknown,grade,er,her,chemo,detection,ki67)
       // age,dia,nnum,nknown,grade,er,her,chemoGen,detection,ki67
       if(parameterOK){
@@ -248,11 +253,29 @@
         return result
       }else{
         console.log("parameter not suitable for UK model calculation")
+        return null
       }
     }
     var lifeMathCalResult = ModelLifeMathCal()
     var UKCalResult = ModelUKCal()
-
+    var UKSurvText = ModelUK.UKResultOutput()
+    var UKDispEvaluate = ModelUK.dispEvaluate()
+    textDiscriptUK(UKSurvText,UKDispEvaluate)
+  }
+  function textDiscriptUK(datasrc,dispEva){
+    var resultDisp = $("#resultDisp")
+    $(".resultC").css("display","")
+    $(".resultH").css("display","")
+    $(".resultT").css("display","")
+    if(dispEva["hideChemo"]){
+      $(".resultC").css("display","none")
+    }
+    if(!dispEva["her2disp"]){
+      $(".resultC").css("display","none")
+    }
+    if(!dispEva["erdisp"]){
+      $(".resultC").css("display","none")
+    }
   }
   function makeEnable(target,isEnable){
     $("#"+target).prop('disabled', !isEnable)
@@ -260,6 +283,8 @@
       $("#"+target).focus()
     }
   }
+
+
   </script>
 </body>
 </html>

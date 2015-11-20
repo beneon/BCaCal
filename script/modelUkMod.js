@@ -1,4 +1,4 @@
-// 对于uk model来说如果her、ki67存在未知值的时候算法是会出错的,grade如果选择未分化的时候也会出错
+// 对于uk model来说如果grade如果选择未分化的时候会出错
 // 这个必须要在程序里面体现
 function StrArray(){
   this.set=false;
@@ -24,6 +24,11 @@ function UkBcaCal(){
     var result = [0,null,null,null,2,3]
     return result[chemoPara]
   }
+  this.grader = function(grade){
+    var result = [2.13,1,2,3,null]
+    //uk的tumor grade里面的1、2、3是怎么个对应啊？
+    return result[grade]
+  }
   this.chemoRed = [0.0,0.0,0.0,0.0];
   this.hormoRed = [0.0,0.0,0.0,0.0];
   this.blSurvival = [0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
@@ -44,7 +49,7 @@ function UkBcaCal(){
     this.dia=dia;
     this.nnum=nnum;
     this.nknown=nknown;
-    this.grade=grade;
+    this.grade=this.grader(grade);
     this.er=er;
     this.her=her;
     this.chemoGen=this.chemoGener(chemoGen);
@@ -55,7 +60,7 @@ function UkBcaCal(){
     this._annualIncNB.valReset();
     this._relHazard.valReset();
     var parameterOK = true;
-    if(her==0 || ki67 == 0 || this.chemoGen == null){
+    if(this.chemoGen == null || this.grade == null){
       parameterOK = false
     }
     return parameterOK
@@ -122,16 +127,17 @@ function UkBcaCal(){
     var nodes = this.nnum;
     var nodesKnown = this.nknown;
     var noder;
-    if (nodes > 1) {
-      noder=2;
-    }else if (nodes > 4) {
-      noder=3;
-    }else if (nodes > 9) {
-      noder=4;
-    }else if (nodes == 0){
-      noder=1
-    }else if(!nodesKnown){
+
+    if (!nodesKnown){
       noder=1.5
+    }else if(nodes == 0){
+      noder=1
+    }else if(nodes <= 4){
+      noder=2
+    }else if(nodes <= 9){
+      noder=3
+    }else{
+      noder=4
     }
     return noder;
   }
@@ -151,11 +157,7 @@ function UkBcaCal(){
     }
     return sizer;
   }
-  this.grader = function(){
-    var result = [2.13,1,2,3,4]
-    //uk的tumor grade里面的1、2、3是怎么个对应啊？
-    return result[this.grade]
-  }
+
   this.detectioner = function(){
     var result=[0.204,0,1]
     return result[this.detection]
@@ -256,7 +258,7 @@ function UkBcaCal(){
         intSurvival2[n]=blSurvival[n]-blSurvival[n-1]+1.0;
       }
       for (var n=0;n<10;n++){
-        annualIncNB[n]=-Math.log(Math.pow(intSurvival2[n],Math.exp(1.274565*(Math.pow(age/50.0,2.38)))));
+        annualIncNB[n]=-Math.log(Math.pow(intSurvival2[n],Math.exp(1.274565*(Math.pow(this.age/50.0,2.38)))));
       }
       this._annualIncNB.val = annualIncNB;
       this._annualIncNB.set = true;
@@ -265,7 +267,7 @@ function UkBcaCal(){
   }
   this.relHazard = function(){
     if(!this._relHazard.set){
-      var patientParams=[1,this.noder(),this.sizer(),this.grader(),this.detectioner(),0,0,1];
+      var patientParams=[1,this.noder(),this.sizer(),this.grade,this.detectioner(),0,0,1];
       var relHazard0 = 0.0;
       var relHazard=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
       var erMod = this.erMod[this.er];
@@ -475,6 +477,13 @@ function UkBcaCal(){
     pySurv10CHT=10.0-pySurv10CHT;
     return pySurv10CHT;
   }
+  this.dispEvaluate = function(){
+    var result = new Array();
+    result["hideChemo"]=(this.chemoGen == 0)
+    result["her2disp"]=(this.her == 1)
+    result["erdisp"]=(this.er == 1)
+    return result
+  }
   this.predict = function(){
     var bcSpecSur = this.bcSpecSur();
     var pySurv10OL = this.pySurv10OL();
@@ -496,4 +505,32 @@ function UkBcaCal(){
     result["pySurv10CHT"]=pySurv10CHT
     return result
   }
+  this.UKResultOutput=function(){
+      var result = new Array()
+      var y5Surv=this.cumOverallSurOL[4]
+      var y5SChemo=this.cumOverallSurChemo[4]
+      var y5SHormone=this.cumOverallSurHormo[4]
+      var y5SCH=this.cumOverallSurCandH[4]
+      var y5SCHT=this.cumOverallSurCHT[4]
+      result["y5OVS"]=textPercent(y5Surv)
+      result["y5SHormone"]=textPercent(y5SHormone)
+      result["y5SChemo"]=textPercent(y5SChemo)
+      result["y5SCH"]=textPercent(y5SCH)
+      result["y5SCHT"]=textPercent(y5SCHT)
+      var y10Surv=this.cumOverallSurOL[9]
+      var y10SChemo=this.cumOverallSurChemo[9]
+      var y10SHormone=this.cumOverallSurHormo[9]
+      var y10SCH=this.cumOverallSurCandH[9]
+      var y10SCHT=this.cumOverallSurCHT[9]
+      result["y10OVS"]=textPercent(y10Surv)
+      result["y10SHormone"]=textPercent(y10SHormone)
+      result["y10SChemo"]=textPercent(y10SChemo)
+      result["y10SCH"]=textPercent(y10SCH)
+      result["y10SCHT"]=textPercent(y10SCHT)
+      return result
+  }
+}
+
+function textPercent(x){
+    return ""+(x*100).toFixed(0)
 }

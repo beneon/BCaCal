@@ -475,6 +475,24 @@ function LifeMathCal(){
   // deathDataTruncate();
   // cumDeathTruncate();
   //
+  this.calculateSequence = function(){
+    this.gParaCal();
+    this.kmCal();
+    this.expYL();
+    this.yearlyDeath();
+    this.cumulativeDeath();
+    this.lifeExpectation();
+    this.deathDataTruncate();
+    this.cumDeathTruncate();
+    this.combineEffect();
+    this.deathDataTruncate();
+    this.deathTrAddjust();
+    this.deathCumTrAddjust();
+    this.lifeExpect();
+    this.lifeExpectTr();
+    this.deathDataTruncate();
+    this.cumDeathTruncate();
+  }
   this.dataOutput = function(){
     var result = new Array()
     result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
