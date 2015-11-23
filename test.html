@@ -10,10 +10,30 @@
   <p class="resultC resultT">通过辅助性<span class="resultH">内分泌治疗、</span>化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
   <script src="script/jquery-1.11.3.min.js"></script>
   <script>
+    logStateArr({"resultH":false,"resultC":true,"resultT":true})
+    function logStateArr(stsArr){
+      for(sts in stsArr){
+        console.log(stsArr[sts])
+        $("."+sts).css("display",stsArr[sts]?"":"none")
+      }
+    }
     function logState(eSrc){
       console.log(eSrc.value+": "+eSrc.checked)
       $("."+eSrc.value).css("display",eSrc.checked?"":"none")
     }
+    function testRun(){
+      console.log(oddOrEven(6))
+    }
+    function oddOrEven(n){
+      var isOdd = false;
+      if(n%2 != 0){
+        isOdd = true;
+      }
+      return isOdd
+    }
+
+    testRun()
+
   </script>
 
 </body>

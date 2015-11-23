@@ -479,9 +479,10 @@ function UkBcaCal(){
   }
   this.dispEvaluate = function(){
     var result = new Array();
-    result["hideChemo"]=(this.chemoGen == 0)
-    result["her2disp"]=(this.her == 1)
-    result["erdisp"]=(this.er == 1)
+    result["resultC"]=(this.chemoGen != 0)
+    result["resultT"]=(this.her == 1)
+    result["resultH"]=(this.er == 1)
+    console.log(result)
     return result
   }
   this.predict = function(){
@@ -508,20 +509,20 @@ function UkBcaCal(){
   this.UKResultOutput=function(){
       var result = new Array()
       var y5Surv=this.cumOverallSurOL[4]
-      var y5SChemo=this.cumOverallSurChemo[4]
-      var y5SHormone=this.cumOverallSurHormo[4]
-      var y5SCH=this.cumOverallSurCandH[4]
-      var y5SCHT=this.cumOverallSurCHT[4]
+      var y5SChemo=this.cumOverallSurChemo[4]-y5Surv
+      var y5SHormone=this.cumOverallSurHormo[4]-y5Surv
+      var y5SCH=this.cumOverallSurCandH[4]-y5Surv
+      var y5SCHT=this.cumOverallSurCHT[4]-y5Surv
       result["y5OVS"]=textPercent(y5Surv)
       result["y5SHormone"]=textPercent(y5SHormone)
       result["y5SChemo"]=textPercent(y5SChemo)
       result["y5SCH"]=textPercent(y5SCH)
       result["y5SCHT"]=textPercent(y5SCHT)
       var y10Surv=this.cumOverallSurOL[9]
-      var y10SChemo=this.cumOverallSurChemo[9]
-      var y10SHormone=this.cumOverallSurHormo[9]
-      var y10SCH=this.cumOverallSurCandH[9]
-      var y10SCHT=this.cumOverallSurCHT[9]
+      var y10SChemo=this.cumOverallSurChemo[9]-y10Surv
+      var y10SHormone=this.cumOverallSurHormo[9]-y10Surv
+      var y10SCH=this.cumOverallSurCandH[9]-y10Surv
+      var y10SCHT=this.cumOverallSurCHT[9]-y10Surv
       result["y10OVS"]=textPercent(y10Surv)
       result["y10SHormone"]=textPercent(y10SHormone)
       result["y10SChemo"]=textPercent(y10SChemo)
@@ -533,4 +534,12 @@ function UkBcaCal(){
 
 function textPercent(x){
     return ""+(x*100).toFixed(0)
+}
+function resultDisplaySetting(stsArr){
+  for(sts in stsArr){
+    console.log(sts+","+stsArr[sts])
+    if(!stsArr[sts]){
+      $("."+sts).css("display","none")
+    }
+  }
 }

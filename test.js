@@ -1,2 +1,12 @@
-var result = [0,null,null,null,2,3]
-console.log(result[1]==null)
+function testRun(){
+  console.log(oddOrEven(5))
+}
+function oddOrEven(n){
+  var isOdd = false;
+  if(n%2 != 0){
+    isOdd = true;
+  }
+  return isOdd
+}
+
+testRun()

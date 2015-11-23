@@ -176,11 +176,11 @@
     <div id="ukModelResult">
     <h2 class="h4">UK模型结果</h2>
     <h3 class="h5">5年生存情况</h3>
-    <p>在术后第5年，100名女性中<span id="s10overall"></span>人在未接受辅助治疗的情况下生存</p>
-    <p class="resultH">通过接受辅助内分泌治疗，额外有<span id="s10Hormone"></span>人可以生存</p>
-    <p class="resultC">通过接受辅助化疗，额外有<span id="s10Chemo"></span>人可以生存</p>
-    <p class="resultH resultC">通过接受辅助内分泌治疗联合化疗，额外有<span id="s10CandH"></span>人可以生存</p>
-    <p class="resultC resultT">通过辅助性<span class="resultH">内分泌治疗、</span>化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
+    <p>在术后第5年，100名女性中<span id="s5overall"></span>人在未接受辅助治疗的情况下生存</p>
+    <p class="resultH">通过接受辅助内分泌治疗，额外有<span id="s5Hormone"></span>人可以生存</p>
+    <p class="resultC">通过接受辅助化疗，额外有<span id="s5Chemo"></span>人可以生存</p>
+    <p class="resultH resultC">通过接受辅助内分泌治疗联合化疗，额外有<span id="s5CandH"></span>人可以生存</p>
+    <p class="resultC resultT">通过辅助性<span class="resultH">内分泌治疗、</span>化疗及Trastuzumab，额外有<span id="s5CHT"></span>人可以生存</p>
 
 
     <h3 class="h5">10年生存情况</h3>
@@ -188,7 +188,7 @@
     <p class="resultH">通过接受辅助内分泌治疗，额外有<span id="s10Hormone"></span>人可以生存</p>
     <p class="resultC">通过接受辅助化疗，额外有<span id="s10Chemo"></span>人可以生存</p>
     <p class="resultH resultC">通过接受辅助内分泌治疗联合化疗，额外有<span id="s10CandH"></span>人可以生存</p>
-    <p class="resultH resultC resultT">通过辅助性内分泌治疗、化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
+    <p class="resultC resultT">通过辅助性<span class="resultH">内分泌治疗、</span>化疗及Trastuzumab，额外有<span id="s10CHT"></span>人可以生存</p>
     </div>
   </div>
   </div>
@@ -207,32 +207,32 @@
 
 
   function calculateUpdate(){
-    // var age = parseInt($("#age").val())
-    // var dia = parseFloat($("#diameter").val())/10
-    // var nnum = parseInt($("#nodes").val())
-    // var er = parseInt($("#er").val())
-    // var pr = parseInt($("#pr").val())
-    // var her = parseInt($("#her").val())
-    // var his = parseInt($("#hist").val())
-    // var grade = parseInt($("#grade").val())
-    // var endo = parseInt($("#hormonal").val())
-    // var chemo = parseInt($("#chemo").val())
-    // var nknown = $("#nodesKnown").prop("checked")
-    // var detection = parseInt($("#screen").val())
-    // var ki67 = parseInt($("#ki67").val())
-    var age = 50
-    var dia = 3
-    var nnum = 1
-    var er = 1
-    var pr = 1
-    var her = 1
-    var his = 1
-    var grade = 1
-    var endo = 1
-    var chemo = 4
-    var nknown = true
-    var detection = 1
-    var ki67 = 1
+    var age = parseInt($("#age").val())
+    var dia = parseFloat($("#diameter").val())/10
+    var nnum = parseInt($("#nodes").val())
+    var er = parseInt($("#er").val())
+    var pr = parseInt($("#pr").val())
+    var her = parseInt($("#her").val())
+    var his = parseInt($("#hist").val())
+    var grade = parseInt($("#grade").val())
+    var endo = parseInt($("#hormonal").val())
+    var chemo = parseInt($("#chemo").val())
+    var nknown = $("#nodesKnown").prop("checked")
+    var detection = parseInt($("#screen").val())
+    var ki67 = parseInt($("#ki67").val())
+    // var age = 45
+    // var dia = 3
+    // var nnum = 5
+    // var er = 1
+    // var pr = 1
+    // var her = 1
+    // var his = 1
+    // var grade = 1
+    // var endo = 1
+    // var chemo = 0
+    // var nknown = true
+    // var detection = 1
+    // var ki67 = 1
     var ModelLifeMath = new LifeMathCal()
     var ModelUK = new UkBcaCal()
 
@@ -241,7 +241,7 @@
       // ageP,diaP,nnumP,nodesKnownP,gradeP,erP,herP,prP,hisP,endoP,chemoP
       ModelLifeMath.calculateSequence()
       result = ModelLifeMath.dataOutput()
-      console.log(result)
+      // console.log(result)
       return result
     }
     function ModelUKCal(){
@@ -260,22 +260,20 @@
     var UKCalResult = ModelUKCal()
     var UKSurvText = ModelUK.UKResultOutput()
     var UKDispEvaluate = ModelUK.dispEvaluate()
-    textDiscriptUK(UKSurvText,UKDispEvaluate)
-  }
-  function textDiscriptUK(datasrc,dispEva){
-    var resultDisp = $("#resultDisp")
-    $(".resultC").css("display","")
-    $(".resultH").css("display","")
-    $(".resultT").css("display","")
-    if(dispEva["hideChemo"]){
-      $(".resultC").css("display","none")
-    }
-    if(!dispEva["her2disp"]){
-      $(".resultC").css("display","none")
-    }
-    if(!dispEva["erdisp"]){
-      $(".resultC").css("display","none")
-    }
+    // console.log(UKCalResult)
+    console.log(UKSurvText)
+    $("#s5overall").html(UKSurvText["y5OVS"])
+    $("#s5Hormone").html(UKSurvText["y5SHormone"])
+    $("#s5Chemo").html(UKSurvText["y5SChemo"])
+    $("#s5CandH").html(UKSurvText["y5SCH"])
+    $("#s5CHT").html(UKSurvText["y10SCHT"])
+    $("#s10overall").html(UKSurvText["y10OVS"])
+    $("#s10Hormone").html(UKSurvText["y10SHormone"])
+    $("#s10Chemo").html(UKSurvText["y10SChemo"])
+    $("#s10CandH").html(UKSurvText["y10SCH"])
+    $("#s10CHT").html(UKSurvText["y10SCHT"])
+    resultDisplaySetting(UKDispEvaluate)
+
   }
   function makeEnable(target,isEnable){
     $("#"+target).prop('disabled', !isEnable)
@@ -283,8 +281,6 @@
       $("#"+target).focus()
     }
   }
-
-
   </script>
 </body>
 </html>
