@@ -21,7 +21,7 @@ function UkBcaCal(){
   this.ki67 = 0;
 
   this.chemoGener = function(chemoPara){
-    var result = [0,null,null,null,2,3]
+    var result = [0,null,null,null,1,2]
     return result[chemoPara]
   }
   this.grader = function(grade){
@@ -29,8 +29,8 @@ function UkBcaCal(){
     //uk的tumor grade里面的1、2、3是怎么个对应啊？
     return result[grade]
   }
-  this.chemoRed = [0.0,0.0,0.0,0.0];
-  this.hormoRed = [0.0,0.0,0.0,0.0];
+  this.chemoRed = [0.0,0.0,0.0];
+  this.hormoRed = [0.0,0.0,0.0  ];
   this.blSurvival = [0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
   this.ernIntSurvival=[0.9982,0.9939,0.9941,0.9955,0.9956,0.9966,0.9985,0.99845,0.9985,0.99845];
   this.erpIntSurvival=[0.9999,0.9997,0.9994,0.9992,0.9992,0.9993,0.9992,0.9988,0.9990,0.9990];
@@ -60,7 +60,7 @@ function UkBcaCal(){
     this._annualIncNB.valReset();
     this._relHazard.valReset();
     var parameterOK = true;
-    if(this.chemoGen == null || this.grade == null){
+    if(this.age == 0 || this.chemoGen == null || this.grade == null){
       parameterOK = false
     }
     return parameterOK
@@ -86,7 +86,7 @@ function UkBcaCal(){
     detection:  -0.35779565,
     chemo:  -0.31066269,
     hormo:  -0.04842342,
-    ki67_model:0
+    ki67_model:this.ki67_model()
   };
   this.erMod[2]={
     //erNegative
@@ -111,7 +111,7 @@ function UkBcaCal(){
   }
   this.herEr["er2her2"]=-0.0762;
   this.herEr["er2her1"]=0.2413;
-  this.herEr["er1her2"]=[-0.052845376,-0.04630156,-0.039757744,-0.033213928,-0.026670112,-0.020126296,-0.01358248,-0.007038664,-0.000494848000000001,0.006048968]
+  this.herEr["er1her2"]=[-0.052845376,-0.04630156,-0.039757744,-0.033213928,-0.026670112,-0.020126296,-0.01358248,-0.007038664,-0.000494848000000001,0.006048968];
   this.herEr["er1her1"]=[0.607721824,0.53246794,0.457214056,0.381960172,0.306706288,0.231452404,0.15619852,0.080944636,0.00569075200000001,0.006048968]
   this.ager = function(){
     var age = this.age;
@@ -237,7 +237,7 @@ function UkBcaCal(){
       ager = 3;
     }
     var erLabel = this.erLabel()
-    for(var n=1;n<4;n++){
+    for(var n=0;n<3;n++){
       this.hormoRed[n] = this.efficHormo(erLabel);
       this.chemoRed[n] = this.riskRedChemoAge(ager)[erLabel][n]
     }
@@ -250,7 +250,7 @@ function UkBcaCal(){
   }
   this.annualIncNB = function(){
     if(!this._annualIncNB.set){
-      var blSurvival=[0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
+      var blSurvival=this.blSurvival
       var intSurvival2=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
       var annualIncNB= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];    //NB indicates non-breast
       intSurvival2[0]=blSurvival[0];
@@ -482,7 +482,6 @@ function UkBcaCal(){
     result["resultC"]=(this.chemoGen != 0)
     result["resultT"]=(this.her == 1)
     result["resultH"]=(this.er == 1)
-    console.log(result)
     return result
   }
   this.predict = function(){
@@ -537,7 +536,9 @@ function textPercent(x){
 }
 function resultDisplaySetting(stsArr){
   for(sts in stsArr){
-    console.log(sts+","+stsArr[sts])
+    $("."+sts).css("display","")
+  }
+  for(sts in stsArr){
     if(!stsArr[sts]){
       $("."+sts).css("display","none")
     }

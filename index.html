@@ -173,6 +173,17 @@
   <div class="panel panel-primary form-group">
   <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span>计算结果</div>
   <div class="panel-body" id="resultDisp">
+    <div id="lifeMathModelResult">
+      Cancer Mortality:	18.2% expected 15-year cancer death rate.
+      (18.5% 15-year Kaplan-Meier cancer death rate)
+      Life Expectancy:
+      This cancer shortens the life expectancy of a 45-year-old woman by 5.6 years. (from 37.3 years to 31.7 years)
+      <h2 class="h4">LifeMath模型结果</h2>
+      <h3>癌症死亡率</h3>
+      <p>在诊断后第15年预计癌症特异性死亡率为<span id="l_expectedLM">_</span>%<br>（依据Kaplan-Meier法计算的死亡率为<span id="l_kmLM">_</span>%）</p>
+      <h3 class="h5">预期寿命</h3>
+      <p></p>
+    </div>
     <div id="ukModelResult">
     <h2 class="h4">UK模型结果</h2>
     <h3 class="h5">5年生存情况</h3>
@@ -205,11 +216,18 @@
   <script src="script/modelUKMod.js"></script>
   <script>
 
-
+  function notEmpty(inputSrc){
+    var val = $("#"+inputSrc).val()
+    if( val == ""){
+      return 0
+    }else{
+      return val
+    }
+  }
   function calculateUpdate(){
-    var age = parseInt($("#age").val())
-    var dia = parseFloat($("#diameter").val())/10
-    var nnum = parseInt($("#nodes").val())
+    var age = parseInt(notEmpty("age"))
+    var dia = parseFloat(notEmpty("diameter"))
+    var nnum = parseInt(notEmpty("nodes"))
     var er = parseInt($("#er").val())
     var pr = parseInt($("#pr").val())
     var her = parseInt($("#her").val())
@@ -237,19 +255,24 @@
     var ModelUK = new UkBcaCal()
 
     function ModelLifeMathCal(){
-      ModelLifeMath.initial(age,dia,nnum,nknown,grade,er,her,pr,his,endo,chemo)
-      // ageP,diaP,nnumP,nodesKnownP,gradeP,erP,herP,prP,hisP,endoP,chemoP
+      ModelLifeMath.initial(age,dia/10,nnum,nknown,grade,er,her,pr,his,endo,chemo)
       ModelLifeMath.calculateSequence()
       result = ModelLifeMath.dataOutput()
-      // console.log(result)
       return result
+      result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
+      result["life_expect"] = Math.round(nvsr_life_expect[age]*10)/10
+      result["expect_life_lost"] = Math.round(expect_years_life_lost*10)/10
+      result["expect_saved_years"] = Math.round(expect_life_saved_years*10)/10
+      result["expect_saved_days"] = Math.round(expect_life_saved_days)
+      result["l_km"] = Math.round(L_breastcancer_KM_therapy*1000)/10
+      result["life_expect_with_cancer"] = Math.round((nvsr_life_expect[age] - expect_years_life_lost)*10)/10
+      result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
+      result["l_expected"] = Math.round(L_cancer_death_cumm_therapy[15]*1000)/10
     }
     function ModelUKCal(){
       var parameterOK = ModelUK.initial(age,dia,nnum,nknown,grade,er,her,chemo,detection,ki67)
-      // age,dia,nnum,nknown,grade,er,her,chemoGen,detection,ki67
       if(parameterOK){
         result = ModelUK.predict()
-        console.log(result)
         return result
       }else{
         console.log("parameter not suitable for UK model calculation")
@@ -258,22 +281,24 @@
     }
     var lifeMathCalResult = ModelLifeMathCal()
     var UKCalResult = ModelUKCal()
-    var UKSurvText = ModelUK.UKResultOutput()
-    var UKDispEvaluate = ModelUK.dispEvaluate()
-    // console.log(UKCalResult)
-    console.log(UKSurvText)
-    $("#s5overall").html(UKSurvText["y5OVS"])
-    $("#s5Hormone").html(UKSurvText["y5SHormone"])
-    $("#s5Chemo").html(UKSurvText["y5SChemo"])
-    $("#s5CandH").html(UKSurvText["y5SCH"])
-    $("#s5CHT").html(UKSurvText["y10SCHT"])
-    $("#s10overall").html(UKSurvText["y10OVS"])
-    $("#s10Hormone").html(UKSurvText["y10SHormone"])
-    $("#s10Chemo").html(UKSurvText["y10SChemo"])
-    $("#s10CandH").html(UKSurvText["y10SCH"])
-    $("#s10CHT").html(UKSurvText["y10SCHT"])
-    resultDisplaySetting(UKDispEvaluate)
-
+    if(UKCalResult != null){
+      $("#ukModelResult").css("display","")
+      var UKSurvText = ModelUK.UKResultOutput()
+      var UKDispEvaluate = ModelUK.dispEvaluate()
+      $("#s5overall").html(UKSurvText["y5OVS"])
+      $("#s5Hormone").html(UKSurvText["y5SHormone"])
+      $("#s5Chemo").html(UKSurvText["y5SChemo"])
+      $("#s5CandH").html(UKSurvText["y5SCH"])
+      $("#s5CHT").html(UKSurvText["y10SCHT"])
+      $("#s10overall").html(UKSurvText["y10OVS"])
+      $("#s10Hormone").html(UKSurvText["y10SHormone"])
+      $("#s10Chemo").html(UKSurvText["y10SChemo"])
+      $("#s10CandH").html(UKSurvText["y10SCH"])
+      $("#s10CHT").html(UKSurvText["y10SCHT"])
+      resultDisplaySetting(UKDispEvaluate)
+    }else{
+      $("#ukModelResult").css("display","none")
+    }
   }
   function makeEnable(target,isEnable){
     $("#"+target).prop('disabled', !isEnable)
