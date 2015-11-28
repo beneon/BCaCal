@@ -1,0 +1,3655 @@
+
+
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+
+<!--[if lt IE 9]>
+
+      <script src="js/html5shiv.js"></script>
+
+      <script src="js/respond.min.js"></script>
+
+    <![endif]-->
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript">
+
+  google.load("visualization", "1", {packages:["corechart"]});
+
+//google.setOnLoadCallback(drawChart);
+
+  google.setOnLoadCallback(resetChart);     // on first load display the null chart
+
+  function drawChart() {
+
+
+
+// n.b. need all these retrieved;
+
+    var chart5_ovs = parseFloat(document.getElementById('chart5_ovs').value);
+
+    var chart5_hormo = parseFloat(document.getElementById('chart5_hormo').value);
+
+    var chart5_chemo_add = parseFloat(document.getElementById('chart5_chemo_add').value);
+
+    var chart5_tram_add = parseFloat(document.getElementById('chart5_tram_add').value);
+
+    var chart10_ovs = parseFloat(document.getElementById('chart10_ovs').value);
+
+    var chart10_hormo = parseFloat(document.getElementById('chart10_hormo').value);
+
+    var chart10_chemo_add = parseFloat(document.getElementById('chart10_chemo_add').value);
+
+    var chart10_tram_add = parseFloat(document.getElementById('chart10_tram_add').value);
+
+    var types=['Year','Survival with no Adjuvant treatment',
+
+               'Benefit of Adjuvant Hormone therapy'];
+
+    if ( chart5_chemo_add > 0.0001 ) {
+
+      types[types.length]='Additional benefit of Adjuvant Chemotherapy';
+
+    }
+
+    if ( chart5_tram_add > 0.0001 ) {
+
+      types[types.length]='Additional benefit of Trastuzumab';
+
+    }
+
+    types[types.length]= { role: 'annotation' };
+
+    var yr5 =  ['Five years', chart5_ovs, chart5_hormo];
+
+    var yr10 = ['Ten years', chart10_ovs, chart10_hormo];
+
+    if ( chart5_chemo_add > 0.0001 ) {
+
+      yr5[yr5.length]= chart5_chemo_add;
+
+      yr10[yr10.length]= chart10_chemo_add;
+
+    }
+
+    if ( chart5_tram_add > 0.0001 ) {
+
+      yr5[yr5.length]= chart5_tram_add;
+
+      yr10[yr10.length]= chart10_tram_add;
+
+    }
+
+    yr5[yr5.length]= '';
+
+    yr10[yr10.length]= '';
+
+    var data = google.visualization.arrayToDataTable([types,yr5,yr10]);
+
+
+
+// alternate construction - cant get this to work
+
+//  var data = google.visualization.DataTable();
+
+//  data.addColumn({ type: 'number', label: 'Five years', id: 'year5', role: 'annotation' });
+
+//  data.addColumn({ type: 'number', label: 'Ten years', id: 'year10', role: 'annotation' });
+
+//  data.addRow([10, 24]);
+
+//  data.addRow([16, 22]);
+
+
+
+    var view = new google.visualization.DataView(data);
+
+// n.b. view.setColumns() Specifies which columns are visible in this view. Any columns not specified will be hidden
+
+    var setcols=[0,1,{ calc: "stringify",sourceColumn: 1,type: "string",role: "annotation" }];
+
+// only set the hormo benefit value (column 2) to be displayed if it's > 0.0
+
+// n.b. hormo value is always in the data array so always index 2
+
+    if ( chart5_hormo > 0.0001 ) {
+
+      setcols[setcols.length]= 2;
+
+      setcols[setcols.length]= { calc: "stringify",sourceColumn: 2,type: "string",role: "annotation" };
+
+    } else {
+
+//    setcols[setcols.length]= 2;     # not needed as not displaying ??
+
+    }
+
+// n.b. if present chemo is always index 3 and traz always index 4 (no traz without chemo)
+
+    if ( chart5_chemo_add > 0.0001 ) {
+
+      setcols[setcols.length]= 3;
+
+      setcols[setcols.length]= { calc: "stringify",sourceColumn: 3,type: "string",role: "annotation" };
+
+    } else {
+
+//    setcols[setcols.length]= 3;
+
+    }
+
+    if ( chart5_tram_add > 0.0001 ) {
+
+      setcols[setcols.length]= 4;
+
+      setcols[setcols.length]= { calc: "stringify",sourceColumn: 4,type: "string",role: "annotation" };
+
+//    setcols[setcols.length]= 5;
+
+    }
+
+    setcols[setcols.length]= types.length - 1;
+
+    view.setColumns(setcols);
+
+//  view.setColumns([0,     // this example for labelling of 2 data regimes in bar chart
+
+//                   1,{ calc: "stringify",sourceColumn: 1,type: "string",role: "annotation" },
+
+//                   2,{ calc: "stringify",sourceColumn: 2,type: "string",role: "annotation" },3]);
+
+
+
+// n.b. height & width are set as same as in img block
+
+//    legend:{ alignment: 'bottom', textStyle: { fontSize: getFontSize(), overflow: 'auto'} }
+
+//    legend: {position: 'bottom', alignment: 'center', maxLines: 4, textStyle: { overflow: 'none'}},
+
+//  legend is uncontrolable - especially for long labels like we have! so don't use and replace with static png
+
+// n.b. give chart max y-axis of 105 so top category value label has enough room to display
+
+//    tooltips: {isHtml: true, showColorCode: true},
+
+//    colors: ['#666699','#00ff00','#ff9900','#00aa99'],
+
+// n.b. since new release of google charts on 23/2/15 for ER -ve (0 hormo) we now need to remove the green
+
+// from the colours vector as it's being used for the chemo i.e. zero hormo is not being interpretted
+
+// properly seemingly a bug - corrected 17/3/15 by emd
+
+    var cols = ['#666699'];
+
+    if ( chart5_hormo > 0.001 ) {
+
+      cols[cols.length]= '#00ff00';
+
+    }
+
+    cols[cols.length]= '#ff9900';
+
+    cols[cols.length]= '#00aa99';
+
+    var options = {
+
+      title: 'Overall Survival at 5 and 10 years (percent)',
+
+      colors: cols,
+
+      vAxis: {maxValue: 105, ticks: [0,10,20,30,40,50,60,70,80,90,100]},
+
+      chartArea: {left:40, top:30, width:'70%', height:'65%'},
+
+      legend: {position: 'none'},
+
+      bar: {groupWidth: "50%"},
+
+      isStacked: true,
+
+      width: 360,
+
+      height: 460
+
+    };
+
+
+
+    var chart_div = document.getElementById('chart1');
+
+    var chart = new google.visualization.ColumnChart(chart_div);
+
+
+
+// n.b. currently turned off as causes tooltips NOT to be displayed on mouseover -must have tooltips!
+
+    // Wait for the chart to finish drawing before calling the getImageURI() method.
+
+//  google.visualization.events.addListener(chart, 'ready', function () {
+
+//    chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+
+//    console.log(chart_div.innerHTML);
+
+//  });
+
+
+
+//  chart.draw(data, options);     // use this form if not using the view object for labelling
+
+    chart.draw(view, options);
+
+
+
+  }
+
+  function resetChart() {
+
+    var types=['Year','Survival with no Adjuvant treatment',
+
+               'Benefit of Adjuvant Hormone therapy', { role: 'annotation' }];
+
+    var yr5 =  ['Five years', 0.1, 0.1, ''];
+
+    var yr10 = ['Ten years', 0.1, 0.1, ''];
+
+    var data = google.visualization.arrayToDataTable([types,yr5,yr10]);
+
+    var options = {
+
+      title: 'Overall Survival at 5 and 10 years (percent)',
+
+      colors: ['#666699','#00ff00','#ff9900','#00aa99'],
+
+      vAxis: {maxValue: 105, ticks: [0,10,20,30,40,50,60,70,80,90,100]},
+
+      chartArea: {left:40, top:30, width:'70%', height:'65%'},
+
+      legend: {position: 'none'},
+
+      bar: {groupWidth: "50%"},
+
+      isStacked: true,
+
+      width: 360,
+
+      height: 460
+
+    };
+
+//    tooltips: {isHtml: true},
+
+
+
+    var chart_div = document.getElementById('chart1');
+
+    var chart = new google.visualization.ColumnChart(chart_div);
+
+
+
+// Wait for the chart to finish drawing before calling the getImageURI() method.
+
+//  google.visualization.events.addListener(chart, 'ready', function () {
+
+//    chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+
+//    console.log(chart_div.innerHTML);
+
+//  });
+
+
+
+    chart.draw(data, options);     // use this form if not using the view object for labelling
+
+
+
+  }
+
+</script>
+
+
+
+<script type="text/javascript" async src="js/ga.js"></script>
+
+<script type="text/javascript">
+
+
+
+  var _gaq = _gaq || [];
+
+  _gaq.push(['_setAccount', 'UA-1462795-22']);
+
+  _gaq.push(['_trackPageview']);
+
+
+
+  (function() {
+
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+
+  })();
+
+
+
+</script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!--Header-->
+
+  <div id="homeborder" class="span12">
+
+    <div id="banner" class="span3" > <a href="index.html" id="logolink" ><img src="images/predictlogo.gif" alt="Predict" /></a> </div>
+
+    <!--end of banner div-->
+
+    <div id="topimage" class="span9"><img src="images/predict_banner.jpg" alt="Predict" /></div>
+
+  </div>
+
+
+
+<!--Header line with google search-->
+
+  <div id="topnav"  class="span12">
+
+    <div id="searchbox" class="span5">
+
+      <!-- Google CSE Search Box Begins  -->
+
+      <form action="http://www.ecric.nhs.uk/results.shtml" id="cse-search-box">
+
+        <input type="hidden" name="cx" value="005986537547411701667:uudlverjqwy">
+
+        <input type="hidden" name="cof" value="FORID:11">
+
+        <input type="text" class="input-large search-google fom" name="q" size="25" >
+
+        <input type="submit" name="sa" value="Search" class="fombut">
+
+        <input name="siteurl" type="hidden" value="www.predict.nhs.uk/">
+
+        <input name="ref" type="hidden" value="">
+
+        <input name="ss" type="hidden" value="">
+
+      </form>
+
+      <script type="text/javascript" src="js/brand"></script>
+
+      <!-- Google CSE Search Box Ends -->
+
+    </div>
+
+    <!--end of search div-->
+
+
+
+  </div>
+
+<!--end of topnav div-->
+
+
+
+  <div  id="contentborder" class="span12 pad-top20">
+
+    <div class="span3 menupedding">
+
+      <div class="navbar navbar-default" role="navigation">
+
+        <div class="container-fluid">
+
+          <div class="navbar-header">
+
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+
+          </div>
+
+          <div class="navbar-collapse collapse">
+
+            <ul class="nav navbar-nav">
+
+              <li><a class="active" href="index.html">Home<br></a></li>
+
+              <li><a class="active" href="patients.html">Information for Patients and Public<br></a></li>
+
+              <li><a class="active" href="technical.html">Information for Professionals<br></a></li>
+
+              <li><a class="active" href="predict.html">PREDICT<br></a></li>
+
+              <li><a class="active" href="whatsnew.html">What's New<br></a></li>
+
+              <li><a class="active" href="faqs.html">FAQs<br></a></li>
+
+              <li><a class="active" href="disclaimer.html">Disclaimer<br></a></li>
+
+              <li><a class="active" href="acknowledgements.html">Acknowledgements<br></a></li>
+
+              <li><a class="active" href="press.html">Press<br></a></li>
+
+              <li><a class="active" href="publications.html">Publications<br></a></li>
+
+              <li><a class="active" href="contact.html">Contact<br></a></li>
+
+              <li><a class="active" href="siteprivacy.html">Privacy Policy<br></a></li>
+
+            </ul>
+
+            </div>
+
+          <!--/.nav-collapse -->
+
+        </div>
+
+        <!--/.container-fluid -->
+
+      </div>
+
+      <p>&nbsp;</p>
+
+    </div>
+
+
+
+    <div class="span8">
+
+     <div id="content" >
+
+    <h2>PREDICT Tool: Breast Cancer Survival; Input</h2><br>
+
+    <div class="span12"  style="background:#FFFF7F !important; margin:0px; padding:10px">
+
+    <script type="text/javascript">
+
+/* Predict survival (derived from script predict.ppl) */
+
+
+
+/* Perform survival prediction, reading values from one form, and
+
+   populating a second. */
+
+function perform_prediction() {
+
+  var age, size, nodes;
+
+  age = parseInt(document.getElementById("age").value);
+
+  if (document.getElementById("size").value.match(/^ *$/))
+
+    size = 9998; // Unknown for web interface
+
+  else
+
+    size = parseInt(document.getElementById("size").value);
+
+  if (document.getElementById("nodes").value.match(/^ *$/))
+
+    nodes = 9998; // Unknown for web interface
+
+  else
+
+    nodes = parseInt(document.getElementById("nodes").value);
+
+  var form = document.forms["predictForm"];
+
+
+
+  var grade = parseInt(get_radio_value(form.grade));
+
+  var erstat = parseFloat(get_radio_value(form.erstat));
+
+  var detection = parseFloat(get_radio_value(form.detection));
+
+  var comor = 0; //Has no effect on model. Was: parseInt(get_radio_value(form.comor));
+
+  var chemoGen = parseInt(get_radio_value(form.chemoGen));
+
+  var her2 = parseFloat(get_radio_value(form.her2));
+
+  var ki67 = parseFloat(get_radio_value(form.ki67));
+
+  var hideChemo;
+
+  if (chemoGen == 0) {
+
+    // Hide chemotherapy information, but make the model work
+
+    hideChemo = true;
+
+    chemoGen = 1;
+
+  } else {
+
+    hideChemo = false;
+
+  }
+
+// n.b. size & nodes fields are left blank in form if unknown
+
+      //document.getElementById("size").value == "" ||
+
+      //document.getElementById("nodes").value == "" ||
+
+  if (document.getElementById("age").value == "" ||
+
+      grade == -9999 || erstat == -9999 || detection == -9999 ||
+
+      comor == -9999 || chemoGen == -9999 ||
+
+      her2 == -9999 || ki67 == -9999) {
+
+    alert("Please complete all fields before predicting survival.");
+
+    return; // Abort if any fields blank / radio boxes unchecked
+
+  }
+
+  if (age < 0 || size < 0 || nodes < 0) {
+
+    alert("Negative age / tumour size / number of nodes is not possible.")
+
+    return; // Abort if invalid arguments
+
+  }
+
+
+
+  var result = predict(age, size, nodes, grade, erstat, detection, comor, chemoGen, her2, ki67);
+
+
+
+  var bcSpecSur = result[0];
+
+  var cumOverallSurOL = result[1];
+
+  var cumOverallSurChemo = result[2];
+
+  var cumOverallSurHormo = result[3];
+
+  var cumOverallSurCandH = result[4];
+
+  var cumOverallSurCHT = result[5]
+
+  var pySurv10OL = result[6];
+
+  var pySurv10Chemo = result[7];
+
+  var pySurv10Hormo = result[8];
+
+  var pySurv10CandH = result[9];
+
+  var pySurv10CHT = result[10];
+
+
+
+
+
+  // print final results
+
+  var ovs = cumOverallSurOL[3];
+
+  document.getElementById("surv4_bcSpec").value = percent(bcSpecSur[3]);
+
+  document.getElementById("surv4_OL").value = percent(ovs);
+
+  document.getElementById("surv4_Chemo").value = percent(cumOverallSurChemo[3]-ovs);
+
+  document.getElementById("surv4_Hormo").value = percent(cumOverallSurHormo[3]-ovs);
+
+  document.getElementById("surv4_CandH").value = percent(cumOverallSurCandH[3]-ovs);
+
+  document.getElementById("surv4_CHT").value = percent(cumOverallSurCHT[3]-ovs);
+
+
+
+  ovs = cumOverallSurOL[4];
+
+  document.getElementById("surv5_bcSpec").value = percent(bcSpecSur[4]);
+
+  document.getElementById("surv5_OL").value = percent(ovs);
+
+  document.getElementById("surv5_Chemo").value = percent(cumOverallSurChemo[4]-ovs);
+
+  document.getElementById("surv5_Hormo").value = percent(cumOverallSurHormo[4]-ovs);
+
+  document.getElementById("surv5_CandH").value = percent(cumOverallSurCandH[4]-ovs);
+
+  document.getElementById("surv5_CHT").value = percent(cumOverallSurCHT[4]-ovs);
+
+  var chart5_ovs = chart_percent(ovs);
+
+  var chart5_hormo = chart_percent(cumOverallSurHormo[4]-ovs);
+
+  var chart5_chemo = chart_percent(cumOverallSurChemo[4]-ovs);
+
+  var chart5_candh = chart_percent(cumOverallSurCandH[4]-ovs);
+
+  var chart5_cht = chart_percent(cumOverallSurCHT[4]-ovs)
+
+  // "Fix" rounding of the chart, so that it shows the difference between rounded values, rather than the rounded difference between values
+
+  //chart5_chemo_add = chart_percent(cumOverallSurCandH[4]-cumOverallSurHormo[4]);
+
+  var chart5_chemo_add = chart_percent(parseFloat(chart5_candh)/100 - parseFloat(chart5_hormo)/100);
+
+  // Still correct for ER negative, as hormone benefit is then 0
+
+  var chart5_tram_add = chart_percent(parseFloat(chart5_cht)/100 - parseFloat(chart5_candh)/100);
+
+  var text5_ovs = text_percent(ovs);
+
+  var text5_hormo = text_percent(cumOverallSurHormo[4]-ovs);
+
+  var text5_chemo = text_percent(cumOverallSurChemo[4]-ovs);
+
+  var text5_candh = text_percent(cumOverallSurCandH[4]-ovs);
+
+  var text5_cht = text_percent(cumOverallSurCHT[4]-ovs)
+
+
+
+  ovs = cumOverallSurOL[9];
+
+  document.getElementById("surv10_bcSpec").value = percent(bcSpecSur[9]);
+
+  document.getElementById("surv10_OL").value = percent(ovs);
+
+  document.getElementById("surv10_Chemo").value = percent(cumOverallSurChemo[9]-ovs);
+
+  document.getElementById("surv10_Hormo").value = percent(cumOverallSurHormo[9]-ovs);
+
+  document.getElementById("surv10_CandH").value = percent(cumOverallSurCandH[9]-ovs);
+
+  document.getElementById("surv10_CHT").value = percent(cumOverallSurCHT[9]-ovs);
+
+  var chart10_ovs = chart_percent(ovs);
+
+  var chart10_hormo = chart_percent(cumOverallSurHormo[9]-ovs);
+
+  var chart10_chemo = chart_percent(cumOverallSurChemo[9]-ovs);
+
+  var chart10_candh = chart_percent(cumOverallSurCandH[9]-ovs);
+
+  var chart10_cht = chart_percent(cumOverallSurCHT[9]-ovs)
+
+  // "Fix" rounding of the chart, so that it shows the difference between rounded values, rather than the rounded difference between values
+
+  //chart10_chemo_add = chart_percent(cumOverallSurCandH[9]-cumOverallSurHormo[9]);
+
+  var chart10_chemo_add = chart_percent(parseFloat(chart10_candh)/100 - parseFloat(chart10_hormo)/100);
+
+  // Still correct for ER negative, as hormone benefit is then 0
+
+  var chart10_tram_add = chart_percent(parseFloat(chart10_cht)/100 - parseFloat(chart10_candh)/100);
+
+  var text10_ovs = text_percent(ovs);
+
+  var text10_hormo = text_percent(cumOverallSurHormo[9]-ovs);
+
+  var text10_chemo = text_percent(cumOverallSurChemo[9]-ovs);
+
+  var text10_candh = text_percent(cumOverallSurCandH[9]-ovs);
+
+  var text10_cht = text_percent(cumOverallSurCHT[9]-ovs)
+
+
+
+  ovs = pySurv10OL;
+
+  document.getElementById("py_OL").value = (ovs).toFixed(2);
+
+  document.getElementById("py_Chemo").value = (pySurv10Chemo-ovs).toFixed(2);
+
+  document.getElementById("py_Hormo").value = (pySurv10Hormo-ovs).toFixed(2);
+
+  document.getElementById("py_CandH").value = (pySurv10CandH-ovs).toFixed(2);
+
+  document.getElementById("py_CHT").value = (pySurv10CHT-ovs).toFixed(2);
+
+
+
+// make sure graph variables that should be zero are zero
+
+// this can occur since these are all calculated regardless of regime
+
+  if (erstat > 0.0) {
+
+    // ER positive  (have hormone therapy)
+
+    if (hideChemo) {
+
+      chart5_chemo_add=0.0;
+
+      chart10_chemo_add=0.0;
+
+    }
+
+  } else {
+
+    // ER negative  (no hormone therapy)
+
+    chart5_hormo=0.0;
+
+    chart10_hormo=0.0;
+
+    if (hideChemo) {
+
+      chart5_chemo_add=0.0;
+
+      chart10_chemo_add=0.0;
+
+    }
+
+  }
+
+  // Can only have tras effect if HER2 positive and a chemo regime
+
+  if (her2 != 2 || hideChemo) {
+
+    chart5_tram_add=0.0;
+
+    chart10_tram_add=0.0;
+
+  }
+
+  document.getElementById('chart5_ovs').value = chart5_ovs;
+
+  document.getElementById('chart5_hormo').value = chart5_hormo;
+
+  document.getElementById('chart5_chemo_add').value = chart5_chemo_add;
+
+  document.getElementById('chart5_tram_add').value = chart5_tram_add;
+
+  document.getElementById('chart10_ovs').value = chart10_ovs;
+
+  document.getElementById('chart10_hormo').value = chart10_hormo;
+
+  document.getElementById('chart10_chemo_add').value = chart10_chemo_add;
+
+  document.getElementById('chart10_tram_add').value = chart10_tram_add;
+
+
+
+  // Update textual summary
+
+  document.getElementById("surv5_OL_100").innerHTML= text5_ovs;
+
+  document.getElementById("surv5_Hormo_100").innerHTML= text5_hormo;
+
+  document.getElementById("surv5_Chemo_100").innerHTML= text5_chemo;
+
+  document.getElementById("surv5_CandH_100").innerHTML= text5_candh;
+
+  document.getElementById("surv5_CHT_100").innerHTML= text5_cht;
+
+  document.getElementById("surv10_OL_100").innerHTML= text10_ovs;
+
+  document.getElementById("surv10_Hormo_100").innerHTML= text10_hormo;
+
+  document.getElementById("surv10_Chemo_100").innerHTML= text10_chemo;
+
+  document.getElementById("surv10_CandH_100").innerHTML= text10_candh;
+
+  document.getElementById("surv10_CHT_100").innerHTML= text10_cht;
+
+
+
+  // Hide or show appropriate textual fields
+
+  var er_pos_display, er_neg_display, cht_extra_text, display;
+
+  if (erstat > 0.0) {
+
+     // ER positive
+
+     er_pos_display = "inline";
+
+     er_neg_display = "none";
+
+     cht_extra_text = 'hormone therapy, '
+
+  } else {
+
+     er_pos_display = "none";
+
+     er_neg_display = "inline";
+
+     cht_extra_text = ''
+
+  }
+
+     //document.getElementById('edetails').style.display='block'
+
+     //or 'none'
+
+  for (var i = 1; i <= 4; i++) {
+
+    if (hideChemo && (i % 2 == 0))
+
+      display = "none";
+
+    else
+
+      display = er_pos_display;
+
+    document.getElementById("er_pos_only_" + i).style.display = display;
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    if (hideChemo)
+
+      display = "none";
+
+    else
+
+      display = er_neg_display;
+
+    document.getElementById("er_neg_only_" + i).style.display = display;
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    if (her2 == 2 && !hideChemo) {
+
+      display = "inline";
+
+    } else {
+
+      display = "none";
+
+    }
+
+    document.getElementById("her2_pos_only_" + i).style.display = display;
+
+    document.getElementById("cht_extra_text_" + i).innerHTML= cht_extra_text;
+
+  }
+
+
+
+}
+
+
+
+/* Predicts survival based on patient input parameters.
+
+   Returns an array of: [bcSpecSur, cumOverallSurOL, cumOverallSurChemo, cumOverallSurHormo, cumOverallSurCandH, cumOverallSurCHT,
+
+   pySurv10OL, pySurv10Chemo, pySurv10Hormo, pySurv10CandH, pySurv10CHT]
+
+   The first 5 are arrays of survival, indexed by number of years (e.g. bcSpecSur[4] is for 5 year survival)
+
+   The remaining 4 are float values, in person years.
+
+
+
+   Arguments age, size and nodes are entered as values; the others as lookups
+
+   # This is how the model assigns input parameters (or ranges)
+
+   # into variables
+
+   # i.e. parameter (or ranges) -> Predict model variable setting
+
+   # Age (<40,40-69,>=70) -> (1,2,3)
+
+   # Node group (0,1,2-4,5-9,10-99,>=100,unknown) -> (0,1,2,3,4,1.5,1.5)
+
+   # Tumour size (0-9,10-19,20-29,30-49,>=50,unknown) -> (1,2,3,4,5,1.5)
+
+   # Tumour Grade (1,2,3,unknown) -> (1,2,3,2.13)
+
+   # ER Status (-ve,+ve,unknown) -> (0.0,1.0,0.5)
+
+   # Detection (Clinical,Screening,Other) -> (0.0,1.0,0.204)
+
+   # Comorbidity (no,yes) -> (0,1)
+
+   # Chemo (1st,2nd,3rd) -> (1,2,3)
+
+   # HER2 Status (-ve,+ve,unknown) -> (1,2,0)
+
+   # KI67 Status (-ve,+ve,unknown) -> (1,2,0)
+
+*/
+
+function predict(age, size, nodes, grade, erstat, detection, comor, chemoGen, her2, ki67) {
+
+
+
+  var ki67_pos=0.149035579160488;
+
+  var ki67_neg=-0.113328685307003;
+
+  var ki67_model=0.0;
+
+  if (ki67 == 2) ki67_model=ki67_pos;
+
+  if (ki67 == 1) ki67_model=ki67_neg;
+
+
+
+  var erPos = {
+
+    age: 0,
+
+    node:  0.55850411,
+
+    size:  0.35537797,
+
+    grade:  0.84479071,
+
+    screen:  -0.35779565,
+
+    chemo:  -0.31066269,
+
+    hormo:  -0.04842342,
+
+    ki67:  ki67_model};
+
+
+
+  var erNeg = {
+
+    age: 0,
+
+    node:  0.43819463,
+
+    size:  0.36734320,
+
+    grade:  0.40829403,
+
+    screen:  -0.15051922,
+
+    chemo:  -0.20071834,
+
+    hormo:  0.35787131,
+
+    ki67:  0.0};
+
+
+
+  //
+
+  // Her2 coefficients correspond to case of ER -ve and +ve
+
+  // i.e. 4 cases of combinations of HER2 and ER -ve and +ve
+
+  //
+
+  var her2_ern_her2n= -0.0762;
+
+  var her2_ern_her2p= 0.2413;
+
+  var her2_erp_her2n=[-0.052845376,-0.04630156,-0.039757744,-0.033213928,-0.026670112,-0.020126296,-0.01358248,-0.007038664,-0.000494848000000001,0.006048968];
+
+  var her2_erp_her2p=[0.607721824,0.53246794,0.457214056,0.381960172,0.306706288,0.231452404,0.15619852,0.080944636,0.00569075200000001,0.006048968];
+
+
+
+  // Node group (0,1,2-4,5-9,10-99,>=100,unknown) -> (0,1,2,3,4,1.5,1.5)
+
+  // Tumour size (0-9,10-19,20-29,30-49,>=50,unknown) -> (1,2,3,4,5,1.5)
+
+
+
+  // TODO: Negative / zero noder / sizer arguments??? Maybe fix can-run validation
+
+  var ager=2;
+
+  if (age < 40) ager=1;
+
+  if (age >= 70) ager=3;
+
+  var noder=nodes;
+
+  if (nodes > 1) noder=2;
+
+  if (nodes > 4) noder=3;
+
+  if (nodes > 9) noder=4;
+
+  if (nodes > 99) noder=1.5;
+
+  // take care of undef value of 77 (-> 1.5)
+
+  //if (nodes == 77) noder=1.5;   // bcou data // Not needed for web interface
+
+  if (nodes == 99) noder=1.5;
+
+  //if (nodes =~ /a/) noder=1.5; // Not needed for web interface
+
+  if (nodes == 9998) noder=1.5; // "Unknown" for web interface
+
+  var sizer=1;
+
+  if (size > 9) sizer=2;
+
+  if (size > 19) sizer=3;
+
+  if (size > 29) sizer=4;
+
+  if (size > 49) sizer=5;
+
+  //if (size =~ /a/) sizer=1.5; // Not needed for web interface
+
+  //if (size == "") sizer=1.5; // Not needed for web interface
+
+  if (size == 9998) sizer=1.5; // "Unknown" for web interface
+
+
+
+  var er = erNeg;
+
+  if (erstat > 0.0) er = erPos;
+
+
+
+  var erLabel="eru";     // refers to ER Unknown
+
+  if (erstat < 0.1) erLabel="ern";
+
+  if (erstat > 0.9) erLabel="erp";
+
+  //alert("ER label is: " + erLabel + erstat);
+
+  //
+
+  // end of data input section
+
+  //
+
+  // Basically the model calculate a set of tables (arrays) for various
+
+  // predictions over 1-10 years then you can look up whatever piece
+
+  // of data you need for outputting
+
+  //
+
+  // define risk reduction model coefficients
+
+  // n.b. combo (chemo + hormo) not used
+
+  var efficH_erp=Math.log((100.0-32.0)/100.0);  // natural log (ER Positive)
+
+  var efficH_eru=Math.log((100.0-23.0)/100.0);  // natural log (ER Unknown)
+
+  var efficHormo={"ern" : 0.0, "eru" : efficH_eru, "erp" : efficH_erp};
+
+
+
+  var riskRedChemo_age1 = {  // access riskRedChemo_age1{ern}[1]
+
+    "ern" : [ 0.0,-0.356674943938732,-0.579818495252942,-0.776528789498996],
+
+    "eru" : [ 0.0,-0.356674943938732,-0.579818495252942,-0.776528789498996],
+
+    "erp" : [ 0.0,-0.356674943938732,-0.579818495252942,-0.776528789498996]
+
+  };
+
+  var riskRedChemo_age2 = {
+
+    "ern" : [ 0.0,-0.2484613592985,-0.478035800943,-0.673344553263766],
+
+    "eru" : [ 0.0,-0.198450938723838,-0.415515443961666,-0.63487827243597],
+
+    "erp" : [ 0.0,-0.174353387144778,-0.400477566597125,-0.59783700075562]
+
+  };
+
+  var riskRedChemo_age3 = {
+
+    "ern" : [ 0.0,-0.127833371509885,-0.385662480811985,-0.59783700075562],
+
+    "eru" : [ 0.0,-0.105360515657826,-0.328504066972036,-0.544727175441672],
+
+    "erp" : [ 0.0,-0.083381608939051,-0.301105092783922,-0.510825623765991]
+
+  };
+
+
+
+  // define Efficacy of Trastuzumab addition
+
+  var efficTrast=Math.log(0.7);
+
+  // n.b. Efficacy of Trastuzumab is independent on Chemo Generation
+
+  // and is only relevant for HER2 Positive (zero if otherwise)
+
+
+
+
+
+  if (her2 != 2) efficTrast=0.0;
+
+
+
+  var chemoRed= [0.0, 0.0, 0.0, 0.0];
+
+  var hormoRed= [0.0, 0.0, 0.0, 0.0];
+
+  // loop over 3 chemo generation types
+
+  // n.b. combo (chemo + hormo) risk reduction NOT used
+
+  for (var n = 1; n <= 3; n++) {
+
+    hormoRed[n]=efficHormo[erLabel];
+
+    if( age < 50 ) {
+
+      chemoRed[n]=riskRedChemo_age1[erLabel][n];
+
+    } else if( age >= 60 ) {
+
+      chemoRed[n]=riskRedChemo_age3[erLabel][n];
+
+    } else {
+
+      chemoRed[n]=riskRedChemo_age2[erLabel][n];
+
+    }
+
+  //alert("" + chemoRed[n] + " " + hormoRed[n]);
+
+  }
+
+  // Baseline Hazard section
+
+  // define interval survival for years 1-10 for erp & ern
+
+  // if er unknown default to er pos
+
+  //
+
+  var intSurvival=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  if ( erLabel == "ern" ) {
+
+    intSurvival=[0.9982,0.9939,0.9941,0.9955,0.9956,0.9966,0.9985,0.99845,0.9985,0.99845];
+
+  } else {
+
+    intSurvival=[0.9999,0.9997,0.9994,0.9992,0.9992,0.9993,0.9992,0.9988,0.9990,0.9990];
+
+  }
+
+
+
+  // model for competing death (non-breast mortality - age adjusted)
+
+  var blSurvival=[0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
+
+
+
+  var intSurvival2=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  intSurvival2[0]=blSurvival[0];
+
+  for (var n = 2; n <= 10; n++) {
+
+    intSurvival2[n-1]=blSurvival[n-1]-blSurvival[n-2]+1.0;
+
+  }
+
+  var annualIncNB= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];    // NB indicates non-breast
+
+  for (var n = 1; n <= 10; n++) {
+
+    annualIncNB[n-1]=-Math.log(Math.pow(intSurvival2[n-1],Math.exp(1.274565*(Math.pow(age/50.0,2.38)))));
+
+  //alert("" + intSurvival[n-1] + " " + intSurvival2[n-1] + " " + annualIncNB[n-1]);
+
+  }
+
+
+
+  // model table for chemo or hormone
+
+  // calculate relative hazard as exp sum of model coefficients * patient parameters
+
+  // n.b. effect of chemo and hormo not curently modelled in this calculation
+
+  //
+
+  var patientParams=[1,noder,sizer,grade,detection,0,0,1];
+
+  var relHazard0=0.0;
+
+  var relHazard=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+
+
+  var modelParams=[er["age"],er["node"],er["size"],er["grade"],er["screen"],er["chemo"],er["hormo"],er["ki67"]];
+
+  // n.b. at this stage relative hazard is constant over years
+
+  for (var n = 0; n < patientParams.length; n++) {
+
+    relHazard0+=patientParams[n]*modelParams[n];
+
+  }
+
+  for (var n = 1; n <= 10; n++) {
+
+    relHazard[n-1]=relHazard0;
+
+  }
+
+  // HER2 effects introduces time dependence on relative hazard
+
+  // N.B. There must be no effect from Her2 model if ER status is unknown
+
+  if ( her2 > 0 ) {
+
+    for (var n = 1; n <= 10; n++) {
+
+      if ( erLabel == "erp" && her2 == 1 ) {
+
+        relHazard[n-1]+=her2_erp_her2n[n-1];
+
+      } else if ( erLabel == "erp" && her2 == 2 ) {
+
+        relHazard[n-1]+=her2_erp_her2p[n-1];
+
+      } else if ( erLabel == "ern" && her2 == 1 ) {
+
+        relHazard[n-1]+=her2_ern_her2n;
+
+      } else if ( erLabel == "ern" && her2 == 2 ) {
+
+        relHazard[n-1]+=her2_ern_her2p;
+
+      }
+
+    }
+
+  }
+
+  for (var n = 1; n <= 10; n++) {
+
+    relHazard[n-1]=Math.exp(relHazard[n-1]);
+
+  }
+
+  //alert(modelParams);
+
+  //alert(patientParams);
+
+  //alert("Rel haz: " + relHazard);
+
+  var annuIncidence= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  for (var n = 1; n <= 10; n++) {
+
+    annuIncidence[n-1]=-Math.log(Math.pow(intSurvival[n-1],relHazard[n-1]));
+
+  }
+
+  //alert(annuIncidence);
+
+  //
+
+  // BC specific life table
+
+  //
+
+  var cumIncidence=0.0;
+
+  var bcSpecSur= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumIncidence+=annuIncidence[n-1];
+
+    bcSpecSur[n-1]=Math.exp(-1.0*cumIncidence);
+
+  }
+
+  //
+
+  // overall life (OL) table
+
+  //
+
+  var totalIncid= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  var cumOverallSurOL= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumIncidence=0.0;  // reset
+
+  var cumRisk=0.0;
+
+  var prevcumRisk=0.0;
+
+  var pySurv10OL=0.0;   // person year survival to year 10 (Overall Life)
+
+  for (var n = 1; n <= 10; n++) {
+
+
+
+    totalIncid[n-1]=annualIncNB[n-1]+annuIncidence[n-1];
+
+    cumIncidence+=totalIncid[n-1];
+
+    cumOverallSurOL[n-1]=Math.exp(-1.0*cumIncidence);
+
+    //alert("" + bcSpecSur[n-1] + "" + cumOverallSurOL[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumIncidence);
+
+    pySurv10OL+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10OL=10.0-pySurv10OL;
+
+  //alert("PY sur 10 (OL): " + pySurv10OL);
+
+  //
+
+  // Various treatment effects tables follow
+
+  //
+
+  // 1) Chemo table
+
+  //
+
+  var chemoConst=Math.exp(chemoRed[chemoGen]);  // n.b. dim is 0:3  0 not used
+
+  var cumOverallSurChemo= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  var cumBrIncidTreat=0.0;
+
+  var cumCombIncidTreat=0.0;
+
+  var pySurv10Chemo=0.0;   // person year survival to year 10 (Chemo)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumBrIncidTreat=chemoConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurChemo[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert("" + chemoConst + " " + cumBrIncidTreat + " " + cumCombIncidTreat + " " + cumOverallSurChemo[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10Chemo+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10Chemo=10.0-pySurv10Chemo;
+
+  //alert("PY sur 10 (OL): " + pySurv10Chemo);
+
+  //
+
+  // 2) Hormo table
+
+  //
+
+  // n.b. although hormo const not a function of chemo it is dimensioned such
+
+  var hormoConst=Math.exp(hormoRed[chemoGen]);  // n.b. dim is 0:3  0 not used
+
+  var cumOverallSurHormo= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumBrIncidTreat=0.0;
+
+  cumCombIncidTreat=0.0;
+
+  var pySurv10Hormo=0.0;   // person year survival to year 10 (Hormo)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumBrIncidTreat=hormoConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurHormo[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert("" + hormoConst + " " + cumBrIncidTreat + " " + cumCombIncidTreat + " " + cumOverallSurHormo[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10Hormo+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10Hormo=10.0-pySurv10Hormo;
+
+  //alert("PY sur 10 (OL): " + pySurv10Hormo);
+
+  //
+
+  // 3) Combined Chemo & Hormo table (CandH)
+
+  //
+
+  var CandHConst=Math.exp(chemoRed[chemoGen]+hormoRed[chemoGen]);  // n.b. dim is 0:3  0 not used
+
+  var cumOverallSurCandH= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumBrIncidTreat=0.0;
+
+  cumCombIncidTreat=0.0;
+
+  var pySurv10CandH=0.0;   // person year survival to year 10 (CandH)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumBrIncidTreat=CandHConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurCandH[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert("" + CandHConst + " " + cumBrIncidTreat + " " + cumCombIncidTreat + " " + cumOverallSurCandH[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10CandH+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10CandH=10.0-pySurv10CandH;
+
+  //alert("PY sur 10 (OL): " + pySurv10CandH);
+
+
+
+  //
+
+  // 4) Combined Chemo & Hormo & Trastuzumab table (CHT)
+
+  //
+
+  var CHTConst0to5yrs=Math.exp(chemoRed[chemoGen]+hormoRed[chemoGen]+efficTrast);
+
+  var CHTConst5to9yrs=Math.exp(chemoRed[chemoGen]+hormoRed[chemoGen]);
+
+  var CHTConst;
+
+  var cumOverallSurCHT= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumBrIncidTreat=0.0;
+
+  cumCombIncidTreat=0.0;
+
+  var pySurv10CHT=0.0;   // person year survival to year 10 (CHT)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    CHTConst=CHTConst0to5yrs;
+
+    if (n > 5) CHTConst=CHTConst5to9yrs;  // apply at 5years and over
+
+    cumBrIncidTreat=CHTConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurCHT[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert(CHTConst+" "+cumBrIncidTreat+" "+cumCombIncidTreat+" "+cumOverallSurCHT[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10CHT+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10CHT=10.0-pySurv10CHT;
+
+  //alert("PY sur 10 (OL): " + pySurv10CHT);
+
+
+
+  return [bcSpecSur, cumOverallSurOL, cumOverallSurChemo, cumOverallSurHormo, cumOverallSurCandH, cumOverallSurCHT,
+
+          pySurv10OL, pySurv10Chemo, pySurv10Hormo, pySurv10CandH, pySurv10CHT];
+
+}
+
+
+
+/* Returns the contents of a radio field, or "-9999" if nothing selected. */
+
+function get_radio_value(field) {
+
+  var result = "-9999";
+
+  for (var i=0; i < field.length; i++) {
+
+    if (field[i].checked) {
+
+      result = field[i].value;
+
+    }
+
+  }
+
+  return result;
+
+}
+
+
+
+/* Format a floating point number as a percentage */
+
+function percent(x) {
+
+  return "" + (x*100).toFixed(1) + "%";
+
+}
+
+
+
+/* Format a floating point number as a percentage value, for a chart */
+
+function chart_percent(x) {
+
+  return "" + (x*100).toFixed(1);
+
+}
+
+
+
+/* Format a floating point number as a percentage value, for a textual description */
+
+function text_percent(x) {
+
+  return "" + (x*100).toFixed(0);
+
+}
+
+/* Reset chart images and text display */
+
+function reset_displays() {
+
+  document.getElementById('chart5_ovs').value = "";
+
+  document.getElementById('chart5_hormo').value = "";
+
+  document.getElementById('chart5_chemo_add').value = "";
+
+  document.getElementById('chart5_tram_add').value = "";
+
+  document.getElementById('chart10_ovs').value = "";
+
+  document.getElementById('chart10_hormo').value = "";
+
+  document.getElementById('chart10_chemo_add').value = "";
+
+  document.getElementById('chart10_tram_add').value = "";
+
+  resetChart();
+
+// reset text under graph legend
+
+  document.getElementById("surv5_OL_100").innerHTML= "XX";
+
+  document.getElementById("surv5_OL_100").style.display = "display";
+
+  document.getElementById("surv10_OL_100").innerHTML= "XX";
+
+  document.getElementById("surv10_OL_100").style.display = "display";
+
+  for (var i = 1; i <= 4; i++) {
+
+    document.getElementById("er_pos_only_" + i).style.display = "none";
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    document.getElementById("er_neg_only_" + i).style.display = "none";
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    document.getElementById("her2_pos_only_" + i).style.display = "none";
+
+  }
+
+}
+
+</script>
+
+<!-- original was onsubmit=perform_prediction() but better to have onsubmit=reset_displays() -->
+
+<!-- all chart updates then handled by perform_prediction() appart from reset button using reset_displays() -->
+
+<form id="predictForm" action="#" onsubmit="reset_displays(); return false">
+
+            <div class="detail">
+
+
+
+              <div class="row-fluid">
+
+                 <div class="span12">
+
+                   <div class="span4">
+
+                     <label></span>Age at diagnosis:</label>
+
+                   </div>
+
+                   <div class="span8 textAlignLeft">
+
+                     <input class="boxes" id="age" maxlength="4" size="4" type="number"><span style="color:#7F7F7F;"></span><br>
+
+                   </div>
+
+
+
+                 </div>
+
+              </div>
+
+
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+                  <div class="span4">
+
+                     <label>Mode of detection:</label>
+
+                  </div>
+
+                   <div class="span3 textAlignLeft">
+
+                    <span style="white-space: nowrap;"><label for="r32"><input name="detection" id="r32" value="1.0" type="radio"> Screen-detected </label></span>
+
+
+
+                   </div>
+
+
+
+                  <div class="span3 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r31"><input name="detection" id="r31" value="0.0" type="radio"> Symptomatic </label></span>
+
+                  </div>
+
+                     <div class="span2 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r33"><input name="detection" id="r33" value="0.204" type="radio"> Unknown </label></span>
+
+                   </div>
+
+
+
+                </div>
+
+              </div>
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+
+
+                   <div class="span4">
+
+                     <label>Tumour size in mm:</label>
+
+                   </div>
+
+
+
+                   <div class="span8 textAlignLeft">
+
+                     <input class="boxes" id="size" maxlength="4" size="4" type="number"><span style="color:#7F7F7F;">&nbsp(blank if unknown)</span><br>
+
+                   </div>
+
+
+
+                </div>
+
+              </div>
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+
+
+                   <div class="span4">
+
+                     <label>Tumour Grade:</label>
+
+                   </div>
+
+
+
+                   <div class="span1 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r11"><input name="grade" id="r11" value="1" type="radio"> 1 </label></span>
+
+                   </div>
+
+
+
+                  <div class="span1 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r12"><input name="grade" id="r12" value="2" type="radio"> 2 </label></span>
+
+                  </div>
+
+                  <div class="span1 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r13"><input name="grade" id="r13" value="3" type="radio"> 3 </label></span>
+
+                   </div>
+
+                   <div class="span3 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r14"><input name="grade" id="r14" value="2.13" type="radio"> Unknown </label></span><br>
+
+                   </div>
+
+
+
+
+
+                </div>
+
+              </div>
+
+
+
+
+
+
+
+              <div class="row-fluid">
+
+                 <div class="span12">
+
+                   <div class="span4">
+
+                     <label></span>Number of positive nodes:</label>
+
+                   </div>
+
+                   <div class="span8 textAlignLeft">
+
+                     <input class="boxes" id="nodes" maxlength="4" size="4" type="number"><span style="color:#7F7F7F;">&nbsp(blank if unknown)</span><br>
+
+                   </div>
+
+
+
+                 </div>
+
+              </div>
+
+
+
+
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+                  <div class="span4">
+
+                     <label>ER status:</label>
+
+
+
+                  </div>
+
+                   <div class="span3 textAlignLeft">
+
+                    <span style="white-space: nowrap;"><label for="r21"><input name="erstat" id="r21" value="1.0" type="radio"> Positive </label></span>
+
+
+
+                   </div>
+
+
+
+                  <div class="span3 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r22"><input name="erstat" id="r22" value="0.0" type="radio"> Negative </label></span>
+
+                  </div>
+
+
+
+                </div>
+
+              </div>
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+                  <div class="span4">
+
+                     <label>HER2 status:</label>
+
+
+
+                  </div>
+
+                   <div class="span3 textAlignLeft">
+
+                    <span style="white-space: nowrap;"><label for="r41"><input name="her2" id="r41" value="2.0" type="radio"> Positive </label></span>
+
+
+
+                   </div>
+
+
+
+                  <div class="span3 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r42"><input name="her2" id="r42" value="1.0" type="radio"> Negative </label></span>
+
+                  </div>
+
+                     <div class="span2 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r43"><input name="her2" id="r43" value="0.0" type="radio"> Unknown </label></span>
+
+                   </div>
+
+
+
+                </div>
+
+              </div>
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+                  <div class="span4">
+
+                     <label> KI67 status:</label>
+
+
+
+                  </div>
+
+                   <div class="span3 textAlignLeft">
+
+                    <span style="white-space: nowrap;"><label for="r51"><input name="ki67" id="r51" value="2.0" type="radio"> Positive </label></span>
+
+
+
+                   </div>
+
+
+
+                  <div class="span3 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r52"><input name="ki67" id="r52" value="1.0" type="radio"> Negative </label></span>
+
+                  </div>
+
+                     <div class="span2 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r53"><input name="ki67" id="r53" value="0.0" type="radio"> Unknown </label></span>
+
+                   </div>
+
+
+
+                </div>
+
+              </div>
+
+
+
+
+
+              <div class="row-fluid">
+
+                <div class="span12">
+
+                  <div class="span4">
+
+                     <label> Gen chemo regimen:</label>
+
+
+
+                  </div>
+
+                   <div class="span3 textAlignLeft">
+
+                    <span style="white-space: nowrap;"><label for="r61" title="No chemotherapy"><input name="chemoGen" id="r61" value="0" type="radio"> No chemo </label></span>
+
+
+
+                   </div>
+
+
+
+                  <div class="span3 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r62" title="Anthracycline-containing, &gt;4 cycles or equivalent"><input name="chemoGen" id="r62" value="2" type="radio"> Second </label></span>
+
+                  </div>
+
+                     <div class="span2 textAlignLeft">
+
+                     <span style="white-space: nowrap;"><label for="r63" title="Taxane-containing"><input name="chemoGen" id="r63" value="3" type="radio"> Third </label></span>
+
+                   </div>
+
+
+
+                </div>
+
+              </div>
+
+
+
+
+
+
+
+              <div class="row-fluid">
+
+                 <div class="span12">
+
+                  <div class="span4">
+
+                     <label> </label>
+
+
+
+                  </div>
+
+  <div class="noPrint">
+
+                   <div class="span2 buton_space textAlignLeft" style="padding-right:10px"><input class="convert" id="B1" value="Predict Survival" onclick="perform_prediction()" type="button">&nbsp&nbsp;
+
+    </div>
+
+
+
+
+
+      <div class="span2 buton_space textAlignLeft" style="padding-right:10px"><input class="convert" value="Clear All Fields" id="aaa" onclick="reset_displays()" type="reset">&nbsp&nbsp;
+
+	</div>
+
+
+
+      <div class="span2 buton_space textAlignLeft" style="padding-right:10px"><input class="convert" value="Print Results" id="pr" onclick="window.print()" type="button">
+
+      </div>
+
+  </div>
+
+
+
+                </div>
+
+              </div>
+
+<!--
+
+  replaced or removed
+
+	<div class="span2 buton_space textAlignLeft"><a href="#" onclick="window.print(); return false;">Print results</a>
+
+      <div class="span2 textAlignLeft"> <a href="technical.html">About this tool</a></div>
+
+
+
+              <div class="row-fluid">     this div is not used and only takes up space so removed
+
+                 <div class="span12"></div>
+
+              </div>
+
+-->
+
+        </div>
+
+              <div style="clear:both; margin-bottom:10px; "></div>
+
+              </form>
+
+            </div>
+
+    </div>
+
+    </div>
+
+
+
+
+
+      <div style="float:right; background:#FFFF7F;" class="span9">
+
+        <div id="content">
+
+
+
+<noscript><em>ERROR: The online survival predictor currently requires a browser with JavaScript enabled.</em></noscript>
+
+
+
+
+
+
+
+
+
+      </div><div id="content">
+
+<script type="text/javascript">
+
+
+
+/* Predict survival (derived from script predict.ppl) */
+
+
+
+/* Perform survival prediction, reading values from one form, and
+
+   populating a second. */
+
+function perform_prediction() {
+
+  var age, size, nodes;
+
+  age = parseInt(document.getElementById("age").value);
+
+  if (document.getElementById("size").value.match(/^ *$/))
+
+    size = 9998; // Unknown for web interface
+
+  else
+
+    size = parseInt(document.getElementById("size").value);
+
+  if (document.getElementById("nodes").value.match(/^ *$/))
+
+    nodes = 9998; // Unknown for web interface
+
+  else
+
+    nodes = parseInt(document.getElementById("nodes").value);
+
+  var form = document.forms["predictForm"];
+
+
+
+  var grade = parseInt(get_radio_value(form.grade));
+
+  var erstat = parseFloat(get_radio_value(form.erstat));
+
+  var detection = parseFloat(get_radio_value(form.detection));
+
+  var comor = 0; //Has no effect on model. Was: parseInt(get_radio_value(form.comor));
+
+  var chemoGen = parseInt(get_radio_value(form.chemoGen));
+
+  var her2 = parseFloat(get_radio_value(form.her2));
+
+  var ki67 = parseFloat(get_radio_value(form.ki67));
+
+  var hideChemo;
+
+  if (chemoGen == 0) {
+
+    // Hide chemotherapy information, but make the model work
+
+    hideChemo = true;
+
+    chemoGen = 1;
+
+  } else {
+
+    hideChemo = false;
+
+  }
+
+// n.b. size & nodes fields are left blank in form if unknown
+
+      //document.getElementById("size").value == "" ||
+
+      //document.getElementById("nodes").value == "" ||
+
+  if (document.getElementById("age").value == "" ||
+
+      grade == -9999 || erstat == -9999 || detection == -9999 ||
+
+      comor == -9999 || chemoGen == -9999 ||
+
+      her2 == -9999 || ki67 == -9999) {
+
+    alert("Please complete all fields before predicting survival.");
+
+    return; // Abort if any fields blank / radio boxes unchecked
+
+  }
+
+  if (age < 0 || size < 0 || nodes < 0) {
+
+    alert("Negative age / tumour size / number of nodes is not possible.")
+
+    return; // Abort if invalid arguments
+
+  }
+
+
+
+  var result = predict(age, size, nodes, grade, erstat, detection, comor, chemoGen, her2, ki67);
+
+
+
+  var bcSpecSur = result[0];
+
+  var cumOverallSurOL = result[1];
+
+  var cumOverallSurChemo = result[2];
+
+  var cumOverallSurHormo = result[3];
+
+  var cumOverallSurCandH = result[4];
+
+  var cumOverallSurCHT = result[5]
+
+  var pySurv10OL = result[6];
+
+  var pySurv10Chemo = result[7];
+
+  var pySurv10Hormo = result[8];
+
+  var pySurv10CandH = result[9];
+
+  var pySurv10CHT = result[10];
+
+
+
+
+
+  // print final results
+
+  var ovs = cumOverallSurOL[3];
+
+  document.getElementById("surv4_bcSpec").value = percent(bcSpecSur[3]);
+
+  document.getElementById("surv4_OL").value = percent(ovs);
+
+  document.getElementById("surv4_Chemo").value = percent(cumOverallSurChemo[3]-ovs);
+
+  document.getElementById("surv4_Hormo").value = percent(cumOverallSurHormo[3]-ovs);
+
+  document.getElementById("surv4_CandH").value = percent(cumOverallSurCandH[3]-ovs);
+
+  document.getElementById("surv4_CHT").value = percent(cumOverallSurCHT[3]-ovs);
+
+
+
+  ovs = cumOverallSurOL[4];
+
+  document.getElementById("surv5_bcSpec").value = percent(bcSpecSur[4]);
+
+  document.getElementById("surv5_OL").value = percent(ovs);
+
+  document.getElementById("surv5_Chemo").value = percent(cumOverallSurChemo[4]-ovs);
+
+  document.getElementById("surv5_Hormo").value = percent(cumOverallSurHormo[4]-ovs);
+
+  document.getElementById("surv5_CandH").value = percent(cumOverallSurCandH[4]-ovs);
+
+  document.getElementById("surv5_CHT").value = percent(cumOverallSurCHT[4]-ovs);
+
+
+
+  var chart5_ovs = chart_percent(ovs);
+
+  var chart5_hormo = chart_percent(cumOverallSurHormo[4]-ovs);
+
+  var chart5_chemo = chart_percent(cumOverallSurChemo[4]-ovs);
+
+  var chart5_candh = chart_percent(cumOverallSurCandH[4]-ovs);
+
+  var chart5_cht = chart_percent(cumOverallSurCHT[4]-ovs)
+
+  // "Fix" rounding of the chart, so that it shows the difference between rounded values, rather than the rounded difference between values
+
+  //chart5_chemo_add = chart_percent(cumOverallSurCandH[4]-cumOverallSurHormo[4]);
+
+  var chart5_chemo_add = chart_percent(parseFloat(chart5_candh)/100 - parseFloat(chart5_hormo)/100);
+
+  // Still correct for ER negative, as hormone benefit is then 0
+
+  var chart5_tram_add = chart_percent(parseFloat(chart5_cht)/100 - parseFloat(chart5_candh)/100);
+
+  var text5_ovs = text_percent(ovs);
+
+  var text5_hormo = text_percent(cumOverallSurHormo[4]-ovs);
+
+  var text5_chemo = text_percent(cumOverallSurChemo[4]-ovs);
+
+  var text5_candh = text_percent(cumOverallSurCandH[4]-ovs);
+
+  var text5_cht = text_percent(cumOverallSurCHT[4]-ovs)
+
+
+
+  ovs = cumOverallSurOL[9];
+
+  document.getElementById("surv10_bcSpec").value = percent(bcSpecSur[9]);
+
+  document.getElementById("surv10_OL").value = percent(ovs);
+
+  document.getElementById("surv10_Chemo").value = percent(cumOverallSurChemo[9]-ovs);
+
+  document.getElementById("surv10_Hormo").value = percent(cumOverallSurHormo[9]-ovs);
+
+  document.getElementById("surv10_CandH").value = percent(cumOverallSurCandH[9]-ovs);
+
+  document.getElementById("surv10_CHT").value = percent(cumOverallSurCHT[9]-ovs);
+
+  var chart10_ovs = chart_percent(ovs);
+
+  var chart10_hormo = chart_percent(cumOverallSurHormo[9]-ovs);
+
+  var chart10_chemo = chart_percent(cumOverallSurChemo[9]-ovs);
+
+  var chart10_candh = chart_percent(cumOverallSurCandH[9]-ovs);
+
+  var chart10_cht = chart_percent(cumOverallSurCHT[9]-ovs)
+
+  // "Fix" rounding of the chart, so that it shows the difference between rounded values, rather than the rounded difference between values
+
+  //chart10_chemo_add = chart_percent(cumOverallSurCandH[9]-cumOverallSurHormo[9]);
+
+  var chart10_chemo_add = chart_percent(parseFloat(chart10_candh)/100 - parseFloat(chart10_hormo)/100);
+
+  // Still correct for ER negative, as hormone benefit is then 0
+
+  var chart10_tram_add = chart_percent(parseFloat(chart10_cht)/100 - parseFloat(chart10_candh)/100);
+
+  var text10_ovs = text_percent(ovs);
+
+  var text10_hormo = text_percent(cumOverallSurHormo[9]-ovs);
+
+  var text10_chemo = text_percent(cumOverallSurChemo[9]-ovs);
+
+  var text10_candh = text_percent(cumOverallSurCandH[9]-ovs);
+
+  var text10_cht = text_percent(cumOverallSurCHT[9]-ovs)
+
+
+
+  ovs = pySurv10OL;
+
+  document.getElementById("py_OL").value = (ovs).toFixed(2);
+
+  document.getElementById("py_Chemo").value = (pySurv10Chemo-ovs).toFixed(2);
+
+  document.getElementById("py_Hormo").value = (pySurv10Hormo-ovs).toFixed(2);
+
+  document.getElementById("py_CandH").value = (pySurv10CandH-ovs).toFixed(2);
+
+  document.getElementById("py_CHT").value = (pySurv10CHT-ovs).toFixed(2);
+
+
+
+// make sure graph variables that should be zero are zero
+
+// this can occur since these are all calculated regardless of regime
+
+  if (erstat > 0.0) {
+
+    // ER positive  (have hormone therapy)
+
+    if (hideChemo) {
+
+      chart5_chemo_add=0.0;
+
+      chart10_chemo_add=0.0;
+
+    }
+
+  } else {
+
+    // ER negative  (no hormone therapy)
+
+    chart5_hormo=0.0;
+
+    chart10_hormo=0.0;
+
+    if (hideChemo) {
+
+      chart5_chemo_add=0.0;
+
+      chart10_chemo_add=0.0;
+
+    }
+
+  }
+
+  // Can only have tras effect if HER2 positive and a chemo regime
+
+  if (her2 != 2 || hideChemo) {
+
+    chart5_tram_add=0.0;
+
+    chart10_tram_add=0.0;
+
+  }
+
+  document.getElementById('chart5_ovs').value = chart5_ovs;
+
+  document.getElementById('chart5_hormo').value = chart5_hormo;
+
+  document.getElementById('chart5_chemo_add').value = chart5_chemo_add;
+
+  document.getElementById('chart5_tram_add').value = chart5_tram_add;
+
+  document.getElementById('chart10_ovs').value = chart10_ovs;
+
+  document.getElementById('chart10_hormo').value = chart10_hormo;
+
+  document.getElementById('chart10_chemo_add').value = chart10_chemo_add;
+
+  document.getElementById('chart10_tram_add').value = chart10_tram_add;
+
+
+
+  // Update textual summary
+
+  document.getElementById("surv5_OL_100").innerHTML= text5_ovs;
+
+  document.getElementById("surv5_Hormo_100").innerHTML= text5_hormo;
+
+  document.getElementById("surv5_Chemo_100").innerHTML= text5_chemo;
+
+  document.getElementById("surv5_CandH_100").innerHTML= text5_candh;
+
+  document.getElementById("surv5_CHT_100").innerHTML= text5_cht;
+
+  document.getElementById("surv10_OL_100").innerHTML= text10_ovs;
+
+  document.getElementById("surv10_Hormo_100").innerHTML= text10_hormo;
+
+  document.getElementById("surv10_Chemo_100").innerHTML= text10_chemo;
+
+  document.getElementById("surv10_CandH_100").innerHTML= text10_candh;
+
+  document.getElementById("surv10_CHT_100").innerHTML= text10_cht;
+
+
+
+  var er_pos_display, er_neg_display, cht_extra_text, display;
+
+  // Hide or show appropriate textual fields
+
+  if (erstat > 0.0) {
+
+     // ER positive
+
+     er_pos_display = "inline";
+
+     er_neg_display = "none";
+
+     cht_extra_text = 'hormone therapy, '
+
+  } else {
+
+     er_pos_display = "none";
+
+     er_neg_display = "inline";
+
+     cht_extra_text = ''
+
+  }
+
+     //document.getElementById('edetails').style.display='block'
+
+     //or 'none'
+
+  for (var i = 1; i <= 4; i++) {
+
+    if (hideChemo && (i % 2 == 0))
+
+      display = "none";
+
+    else
+
+      display = er_pos_display;
+
+    document.getElementById("er_pos_only_" + i).style.display = display;
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    if (hideChemo)
+
+      display = "none";
+
+    else
+
+      display = er_neg_display;
+
+    document.getElementById("er_neg_only_" + i).style.display = display;
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    if (her2 == 2 && !hideChemo) {
+
+      display = "inline";
+
+    } else {
+
+      display = "none";
+
+    }
+
+    document.getElementById("her2_pos_only_" + i).style.display = display;
+
+    document.getElementById("cht_extra_text_" + i).innerHTML= cht_extra_text;
+
+  }
+
+  drawChart();
+
+
+
+}
+
+
+
+/* Predicts survival based on patient input parameters.
+
+   Returns an array of: [bcSpecSur, cumOverallSurOL, cumOverallSurChemo, cumOverallSurHormo, cumOverallSurCandH, cumOverallSurCHT,
+
+   pySurv10OL, pySurv10Chemo, pySurv10Hormo, pySurv10CandH, pySurv10CHT]
+
+   The first 5 are arrays of survival, indexed by number of years (e.g. bcSpecSur[4] is for 5 year survival)
+
+   The remaining 4 are float values, in person years.
+
+
+
+   Arguments age, size and nodes are entered as values; the others as lookups
+
+   # This is how the model assigns input parameters (or ranges)
+
+   # into variables
+
+   # i.e. parameter (or ranges) -> Predict model variable setting
+
+   # Age (<40,40-69,>=70) -> (1,2,3)
+
+   # Node group (0,1,2-4,5-9,10-99,>=100,unknown) -> (0,1,2,3,4,1.5,1.5)
+
+   # Tumour size (0-9,10-19,20-29,30-49,>=50,unknown) -> (1,2,3,4,5,1.5)
+
+   # Tumour Grade (1,2,3,unknown) -> (1,2,3,2.13)
+
+   # ER Status (-ve,+ve,unknown) -> (0.0,1.0,0.5)
+
+   # Detection (Clinical,Screening,Other) -> (0.0,1.0,0.204)
+
+   # Comorbidity (no,yes) -> (0,1)
+
+   # Chemo (1st,2nd,3rd) -> (1,2,3)
+
+   # HER2 Status (-ve,+ve,unknown) -> (1,2,0)
+
+   # KI67 Status (-ve,+ve,unknown) -> (1,2,0)
+
+*/
+
+function predict(age, size, nodes, grade, erstat, detection, comor, chemoGen, her2, ki67) {
+
+
+
+  var ki67_pos=0.149035579160488;
+
+  var ki67_neg=-0.113328685307003;
+
+  var ki67_model=0.0;
+
+  if (ki67 == 2) ki67_model=ki67_pos;
+
+  if (ki67 == 1) ki67_model=ki67_neg;
+
+
+
+  var erPos = {
+
+    age: 0,
+
+    node:  0.55850411,
+
+    size:  0.35537797,
+
+    grade:  0.84479071,
+
+    screen:  -0.35779565,
+
+    chemo:  -0.31066269,
+
+    hormo:  -0.04842342,
+
+    ki67:  ki67_model};
+
+
+
+  var erNeg = {
+
+    age: 0,
+
+    node:  0.43819463,
+
+    size:  0.36734320,
+
+    grade:  0.40829403,
+
+    screen:  -0.15051922,
+
+    chemo:  -0.20071834,
+
+    hormo:  0.35787131,
+
+    ki67:  0.0};
+
+
+
+  //
+
+  // Her2 coefficients correspond to case of ER -ve and +ve
+
+  // i.e. 4 cases of combinations of HER2 and ER -ve and +ve
+
+  //
+
+  var her2_ern_her2n= -0.0762;
+
+  var her2_ern_her2p= 0.2413;
+
+  var her2_erp_her2n=[-0.052845376,-0.04630156,-0.039757744,-0.033213928,-0.026670112,-0.020126296,-0.01358248,-0.007038664,-0.000494848000000001,0.006048968];
+
+  var her2_erp_her2p=[0.607721824,0.53246794,0.457214056,0.381960172,0.306706288,0.231452404,0.15619852,0.080944636,0.00569075200000001,0.006048968];
+
+
+
+  // Node group (0,1,2-4,5-9,10-99,>=100,unknown) -> (0,1,2,3,4,1.5,1.5)
+
+  // Tumour size (0-9,10-19,20-29,30-49,>=50,unknown) -> (1,2,3,4,5,1.5)
+
+
+
+  // TODO: Negative / zero noder / sizer arguments??? Maybe fix can-run validation
+
+  var ager=2;
+
+  if (age < 40) ager=1;
+
+  if (age >= 70) ager=3;
+
+  var noder=nodes;
+
+  if (nodes > 1) noder=2;
+
+  if (nodes > 4) noder=3;
+
+  if (nodes > 9) noder=4;
+
+  if (nodes > 99) noder=1.5;
+
+  // take care of undef value of 77 (-> 1.5)
+
+  //if (nodes == 77) noder=1.5;   // bcou data // Not needed for web interface
+
+  if (nodes == 99) noder=1.5;
+
+  //if (nodes =~ /a/) noder=1.5; // Not needed for web interface
+
+  if (nodes == 9998) noder=1.5; // "Unknown" for web interface
+
+  var sizer=1;
+
+  if (size > 9) sizer=2;
+
+  if (size > 19) sizer=3;
+
+  if (size > 29) sizer=4;
+
+  if (size > 49) sizer=5;
+
+  //if (size =~ /a/) sizer=1.5; // Not needed for web interface
+
+  //if (size == "") sizer=1.5; // Not needed for web interface
+
+  if (size == 9998) sizer=1.5; // "Unknown" for web interface
+
+
+
+  var er = erNeg;
+
+  if (erstat > 0.0) er = erPos;
+
+
+
+  var erLabel="eru";     // refers to ER Unknown
+
+  if (erstat < 0.1) erLabel="ern";
+
+  if (erstat > 0.9) erLabel="erp";
+
+  //alert("ER label is: " + erLabel + erstat);
+
+  //
+
+  // end of data input section
+
+  //
+
+  // Basically the model calculate a set of tables (arrays) for various
+
+  // predictions over 1-10 years then you can look up whatever piece
+
+  // of data you need for outputting
+
+  //
+
+  // define risk reduction model coefficients
+
+  // n.b. combo (chemo + hormo) not used
+
+  var efficH_erp=Math.log((100.0-32.0)/100.0);  // natural log (ER Positive)
+
+  var efficH_eru=Math.log((100.0-23.0)/100.0);  // natural log (ER Unknown)
+
+  var efficHormo={"ern" : 0.0, "eru" : efficH_eru, "erp" : efficH_erp};
+
+
+
+  var riskRedChemo_age1 = {  // access riskRedChemo_age1{ern}[1]
+
+    "ern" : [ 0.0,-0.356674943938732,-0.579818495252942,-0.776528789498996],
+
+    "eru" : [ 0.0,-0.356674943938732,-0.579818495252942,-0.776528789498996],
+
+    "erp" : [ 0.0,-0.356674943938732,-0.579818495252942,-0.776528789498996]
+
+  };
+
+  var riskRedChemo_age2 = {
+
+    "ern" : [ 0.0,-0.2484613592985,-0.478035800943,-0.673344553263766],
+
+    "eru" : [ 0.0,-0.198450938723838,-0.415515443961666,-0.63487827243597],
+
+    "erp" : [ 0.0,-0.174353387144778,-0.400477566597125,-0.59783700075562]
+
+  };
+
+  var riskRedChemo_age3 = {
+
+    "ern" : [ 0.0,-0.127833371509885,-0.385662480811985,-0.59783700075562],
+
+    "eru" : [ 0.0,-0.105360515657826,-0.328504066972036,-0.544727175441672],
+
+    "erp" : [ 0.0,-0.083381608939051,-0.301105092783922,-0.510825623765991]
+
+  };
+
+
+
+  // define Efficacy of Trastuzumab addition
+
+  var efficTrast=Math.log(0.7);
+
+  // n.b. Efficacy of Trastuzumab is independent on Chemo Generation
+
+  // and is only relevant for HER2 Positive (zero if otherwise)
+
+  if (her2 != 2) efficTrast=0.0;
+
+
+
+  var chemoRed= [0.0, 0.0, 0.0, 0.0];
+
+  var hormoRed= [0.0, 0.0, 0.0, 0.0];
+
+  // loop over 3 chemo generation types
+
+  // n.b. combo (chemo + hormo) risk reduction NOT used
+
+  for (var n = 1; n <= 3; n++) {
+
+    hormoRed[n]=efficHormo[erLabel];
+
+    if( age < 50 ) {
+
+      chemoRed[n]=riskRedChemo_age1[erLabel][n];
+
+    } else if( age >= 60 ) {
+
+      chemoRed[n]=riskRedChemo_age3[erLabel][n];
+
+    } else {
+
+      chemoRed[n]=riskRedChemo_age2[erLabel][n];
+
+    }
+
+  //alert("" + chemoRed[n] + " " + hormoRed[n]);
+
+  }
+
+  // Baseline Hazard section
+
+  // define interval survival for years 1-10 for erp & ern
+
+  // if er unknown default to er pos
+
+  //
+
+  var intSurvival=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  if ( erLabel == "ern" ) {
+
+    intSurvival=[0.9982,0.9939,0.9941,0.9955,0.9956,0.9966,0.9985,0.99845,0.9985,0.99845];
+
+  } else {
+
+    intSurvival=[0.9999,0.9997,0.9994,0.9992,0.9992,0.9993,0.9992,0.9988,0.9990,0.9990];
+
+  }
+
+
+
+  // model for competing death (non-breast mortality - age adjusted)
+
+  var blSurvival=[0.99948645,0.99845935,0.99743225,0.99640515,0.99537805,0.99435095,0.99332385,0.99229675,0.99126965,0.99024255];
+
+
+
+  var intSurvival2=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  intSurvival2[0]=blSurvival[0];
+
+  for (var n = 2; n <= 10; n++) {
+
+    intSurvival2[n-1]=blSurvival[n-1]-blSurvival[n-2]+1.0;
+
+  }
+
+  var annualIncNB= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];    // NB indicates non-breast
+
+  for (var n = 1; n <= 10; n++) {
+
+    annualIncNB[n-1]=-Math.log(Math.pow(intSurvival2[n-1],Math.exp(1.274565*(Math.pow(age/50.0,2.38)))));
+
+  //alert("" + intSurvival[n-1] + " " + intSurvival2[n-1] + " " + annualIncNB[n-1]);
+
+  }
+
+
+
+  // model table for chemo or hormone
+
+  // calculate relative hazard as exp sum of model coefficients * patient parameters
+
+  // n.b. effect of chemo and hormo not curently modelled in this calculation
+
+  //
+
+  var patientParams=[1,noder,sizer,grade,detection,0,0,1];
+
+  var relHazard0=0.0;
+
+  var relHazard=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+
+
+  var modelParams=[er["age"],er["node"],er["size"],er["grade"],er["screen"],er["chemo"],er["hormo"],er["ki67"]];
+
+  // n.b. at this stage relative hazard is constant over years
+
+  for (var n = 0; n < patientParams.length; n++) {
+
+    relHazard0+=patientParams[n]*modelParams[n];
+
+  }
+
+  for (var n = 1; n <= 10; n++) {
+
+    relHazard[n-1]=relHazard0;
+
+  }
+
+  // HER2 effects introduces time dependence on relative hazard
+
+  // N.B. There must be no effect from Her2 model if ER status is unknown
+
+  if ( her2 > 0 ) {
+
+    for (var n = 1; n <= 10; n++) {
+
+      if ( erLabel == "erp" && her2 == 1 ) {
+
+        relHazard[n-1]+=her2_erp_her2n[n-1];
+
+      } else if ( erLabel == "erp" && her2 == 2 ) {
+
+        relHazard[n-1]+=her2_erp_her2p[n-1];
+
+      } else if ( erLabel == "ern" && her2 == 1 ) {
+
+        relHazard[n-1]+=her2_ern_her2n;
+
+      } else if ( erLabel == "ern" && her2 == 2 ) {
+
+        relHazard[n-1]+=her2_ern_her2p;
+
+      }
+
+    }
+
+  }
+
+  for (var n = 1; n <= 10; n++) {
+
+    relHazard[n-1]=Math.exp(relHazard[n-1]);
+
+  }
+
+  //alert(modelParams);
+
+  //alert(patientParams);
+
+  //alert("Rel haz: " + relHazard);
+
+  var annuIncidence= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  for (var n = 1; n <= 10; n++) {
+
+    annuIncidence[n-1]=-Math.log(Math.pow(intSurvival[n-1],relHazard[n-1]));
+
+  }
+
+  //alert(annuIncidence);
+
+  //
+
+  // BC specific life table
+
+  //
+
+  var cumIncidence=0.0;
+
+  var bcSpecSur= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumIncidence+=annuIncidence[n-1];
+
+    bcSpecSur[n-1]=Math.exp(-1.0*cumIncidence);
+
+  }
+
+  //
+
+  // overall life (OL) table
+
+  //
+
+  var totalIncid= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  var cumOverallSurOL= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumIncidence=0.0;  // reset
+
+  var cumRisk=0.0;
+
+  var prevcumRisk=0.0;
+
+  var pySurv10OL=0.0;   // person year survival to year 10 (Overall Life)
+
+  for (var n = 1; n <= 10; n++) {
+
+    totalIncid[n-1]=annualIncNB[n-1]+annuIncidence[n-1];
+
+    cumIncidence+=totalIncid[n-1];
+
+    cumOverallSurOL[n-1]=Math.exp(-1.0*cumIncidence);
+
+    //alert("" + bcSpecSur[n-1] + "" + cumOverallSurOL[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumIncidence);
+
+    pySurv10OL+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10OL=10.0-pySurv10OL;
+
+  //alert("PY sur 10 (OL): " + pySurv10OL);
+
+  //
+
+  // Various treatment effects tables follow
+
+  //
+
+  // 1) Chemo table
+
+  //
+
+  var chemoConst=Math.exp(chemoRed[chemoGen]);  // n.b. dim is 0:3  0 not used
+
+  var cumOverallSurChemo= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  var cumBrIncidTreat=0.0;
+
+  var cumCombIncidTreat=0.0;
+
+  var pySurv10Chemo=0.0;   // person year survival to year 10 (Chemo)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumBrIncidTreat=chemoConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurChemo[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert("" + chemoConst + " " + cumBrIncidTreat + " " + cumCombIncidTreat + " " + cumOverallSurChemo[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10Chemo+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10Chemo=10.0-pySurv10Chemo;
+
+  //alert("PY sur 10 (OL): " + pySurv10Chemo);
+
+  //
+
+  // 2) Hormo table
+
+  //
+
+  // n.b. although hormo const not a function of chemo it is dimensioned such
+
+  var hormoConst=Math.exp(hormoRed[chemoGen]);  // n.b. dim is 0:3  0 not used
+
+  var cumOverallSurHormo= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumBrIncidTreat=0.0;
+
+  cumCombIncidTreat=0.0;
+
+  var pySurv10Hormo=0.0;   // person year survival to year 10 (Hormo)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumBrIncidTreat=hormoConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurHormo[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert("" + hormoConst + " " + cumBrIncidTreat + " " + cumCombIncidTreat + " " + cumOverallSurHormo[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10Hormo+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10Hormo=10.0-pySurv10Hormo;
+
+  //alert("PY sur 10 (OL): " + pySurv10Hormo);
+
+  //
+
+  // 3) Combined Chemo & Hormo table (CandH)
+
+  //
+
+  var CandHConst=Math.exp(chemoRed[chemoGen]+hormoRed[chemoGen]);  // n.b. dim is 0:3  0 not used
+
+  var cumOverallSurCandH= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumBrIncidTreat=0.0;
+
+  cumCombIncidTreat=0.0;
+
+  var pySurv10CandH=0.0;   // person year survival to year 10 (CandH)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    cumBrIncidTreat=CandHConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurCandH[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert("" + CandHConst + " " + cumBrIncidTreat + " " + cumCombIncidTreat + " " + cumOverallSurCandH[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10CandH+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10CandH=10.0-pySurv10CandH;
+
+  //alert("PY sur 10 (OL): " + pySurv10CandH);
+
+
+
+  //
+
+  // 4) Combined Chemo & Hormo & Trastuzumab table (CHT)
+
+  //
+
+  var CHTConst0to5yrs=Math.exp(chemoRed[chemoGen]+hormoRed[chemoGen]+efficTrast);
+
+  var CHTConst5to9yrs=Math.exp(chemoRed[chemoGen]+hormoRed[chemoGen]);
+
+  var CHTConst;
+
+  var cumOverallSurCHT= [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+  cumBrIncidTreat=0.0;
+
+  cumCombIncidTreat=0.0;
+
+  var pySurv10CHT=0.0;   // person year survival to year 10 (CHT)
+
+  cumRisk=0.0;   // reset
+
+  prevcumRisk=0.0;   // reset
+
+  for (var n = 1; n <= 10; n++) {
+
+    CHTConst=CHTConst0to5yrs;
+
+    if (n > 5) CHTConst=CHTConst5to9yrs;  // apply at 5years and over
+
+    cumBrIncidTreat=CHTConst*annuIncidence[n-1];
+
+    cumCombIncidTreat+=cumBrIncidTreat+annualIncNB[n-1];
+
+    cumOverallSurCHT[n-1]=Math.exp(-1.0*cumCombIncidTreat);
+
+  //alert(CHTConst+" "+cumBrIncidTreat+" "+cumCombIncidTreat+" "+cumOverallSurCHT[n-1]);
+
+
+
+    cumRisk=1.0-Math.exp(-1.0*cumCombIncidTreat);
+
+    pySurv10CHT+=0.5*(cumRisk+prevcumRisk);
+
+    prevcumRisk=cumRisk;
+
+  }
+
+  pySurv10CHT=10.0-pySurv10CHT;
+
+  //alert("PY sur 10 (OL): " + pySurv10CHT);
+
+
+
+  return [bcSpecSur, cumOverallSurOL, cumOverallSurChemo, cumOverallSurHormo, cumOverallSurCandH, cumOverallSurCHT,
+
+          pySurv10OL, pySurv10Chemo, pySurv10Hormo, pySurv10CandH, pySurv10CHT];
+
+}
+
+
+
+/* Returns the contents of a radio field, or "-9999" if nothing selected. */
+
+function get_radio_value(field) {
+
+  var result = "-9999";
+
+  for (var i=0; i < field.length; i++) {
+
+    if (field[i].checked) {
+
+      result = field[i].value;
+
+    }
+
+  }
+
+  return result;
+
+}
+
+
+
+/* Format a floating point number as a percentage */
+
+function percent(x) {
+
+  return "" + (x*100).toFixed(1) + "%";
+
+}
+
+
+
+/* Format a floating point number as a percentage value, for a chart */
+
+function chart_percent(x) {
+
+  return "" + (x*100).toFixed(1);
+
+}
+
+
+
+/* Format a floating point number as a percentage value, for a textual description */
+
+function text_percent(x) {
+
+  return "" + (x*100).toFixed(0);
+
+}
+
+/* Reset chart images and text display */
+
+function reset_displays() {
+
+  document.getElementById('chart5_ovs').value = "";
+
+  document.getElementById('chart5_hormo').value = "";
+
+  document.getElementById('chart5_chemo_add').value = "";
+
+  document.getElementById('chart5_tram_add').value = "";
+
+  document.getElementById('chart10_ovs').value = "";
+
+  document.getElementById('chart10_hormo').value = "";
+
+  document.getElementById('chart10_chemo_add').value = "";
+
+  document.getElementById('chart10_tram_add').value = "";
+
+  resetChart();
+
+// reset text under graph legend
+
+  document.getElementById("surv5_OL_100").innerHTML= "XX";
+
+  document.getElementById("surv5_OL_100").style.display = "display";
+
+  document.getElementById("surv10_OL_100").innerHTML= "XX";
+
+  document.getElementById("surv10_OL_100").style.display = "display";
+
+  for (var i = 1; i <= 4; i++) {
+
+    document.getElementById("er_pos_only_" + i).style.display = "none";
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    document.getElementById("er_neg_only_" + i).style.display = "none";
+
+  }
+
+  for (var i = 1; i <= 2; i++) {
+
+    document.getElementById("her2_pos_only_" + i).style.display = "none";
+
+  }
+
+}
+
+</script>
+
+<noscript><em>ERROR: The online survival predictor currently requires a browser with JavaScript enabled.</em></noscript>
+
+  <div class="noScreen">
+
+  <script type="text/javascript">
+
+    if ( navigator.userAgent.search("Firefox") > -1 ) {
+
+      var f=navigator.userAgent.search("Firefox");
+
+/*    document.write("firefox: $.browser.mozilla navigator.userAgent.search('Firefox') = f"); */
+
+      document.write('<p style=\"page-break-before: always\"> </p>');
+
+    }
+
+  </script>
+
+  </div>
+
+  <h2>PREDICT Tool: Breast Cancer Survival; Results</h2>
+
+<!--
+
+m8=navigator.userAgent.search("MSIE 8.0");
+
+    if ( $.browser.mozilla == true ) {
+
+  <p style="page-break-before: always"> </p>
+
+  <p>
+
+-->
+
+    <strong>Five year survival</strong><br>
+
+    <span id="surv5_OL_100" style="display:inline;">XX</span> out of 100 women are alive at 5 years with no adjuvant therapy after surgery
+
+    <span id="er_pos_only_1"><br>
+
+      An extra <span id="surv5_Hormo_100" style="display:inline;">X</span> out of 100 women treated are alive because of hormone therapy</span>
+
+      <span id="er_neg_only_1"><br>
+
+        An extra <span id="surv5_Chemo_100" style="display:inline;">X</span> out of 100 women treated are alive because of chemotherapy</span>
+
+
+
+        <span id="er_pos_only_2"><br>
+
+          An extra <span id="surv5_CandH_100" style="display:inline;">X</span> out of 100 women treated are alive because of hormone therapy &amp; chemotherapy</span>
+
+          <span id="her2_pos_only_1"><br>
+
+            An extra <span id="surv5_CHT_100" style="display:inline;">X</span> out of 100 women treated are alive because of <span id="cht_extra_text_1" style="display:inline;">hormone therapy, </span>chemotherapy &amp; Trastuzumab</span>
+
+<!--
+
+          </p>
+
+  <p>
+
+-->
+
+
+
+          <br>
+
+            <strong>Ten year survival</strong><br>
+
+            <span id="surv10_OL_100" style="display:inline;">XX</span> out of 100 women are alive at 10 years with no adjuvant therapy after surgery
+
+            <span id="er_pos_only_3"><br>
+
+
+
+              An extra <span id="surv10_Hormo_100" style="display:inline;">X</span> out of 100 women treated are alive because of hormone therapy</span>
+
+              <span id="er_neg_only_2"><br>
+
+                An extra <span id="surv10_Chemo_100" style="display:inline;">X</span> out of 100 women treated are alive because of chemotherapy</span>
+
+                <span id="er_pos_only_4"><br>
+
+                  An extra <span id="surv10_CandH_100" style="display:inline;">X</span> out of 100 women treated are alive because of hormone therapy &amp; chemotherapy</span>
+
+                  <span id="her2_pos_only_2"><br>
+
+                    An extra <span id="surv10_CHT_100" style="display:inline;">X</span> out of 100 women treated are alive because of <span id="cht_extra_text_2" style="display:inline;">hormone therapy, </span>chemotherapy &amp; Trastuzumab</span>
+
+
+
+  <div class="noPrint">
+
+  <br>
+
+  To view the numbers in bars hover pointer over each bar-segment
+
+  <br>
+
+  (Or tap segment if using a mobile device)
+
+  <br>
+
+  <br>
+
+  </div>
+
+  <!-- Chart width was 400 -->
+
+  <!--
+
+  <img class="chartsyze" src="images/chart.png" name="chart1" width="360" height="500" id="chart1" style="margin:10px" align="top" border="0">
+
+  -->
+
+  <!-- N.B. have to use overflow:hidden as we need to cut-off the area of the image where the scale
+
+       would be (even though we turn it off the area is not shrunk down by the jsapi graphics)
+
+    <div id="chart1" style="width: 360px; height: 460px"></div>
+
+  -->
+
+    <div id="chart1" style="width: 360px; height: 360px; overflow: hidden"></div>
+
+    <div id="legend"> <img src="images/predict_full_legend.png"></div>
+
+
+
+                  <p>
+
+                    <em>Disclaimer: <span class="announcheader">PREDICT</span> can only
+
+                      provide a general guide to possible outcomes in any individual case.  As
+
+                      we are all different, for the more complete picture in your case, you
+
+                      should speak to your own specialist.  You may wish to print this page
+
+                      out and share it with your specialist.</em>
+
+                    </p>
+
+
+
+                    <table style="display: none">
+
+                      <tbody><tr>
+
+                        <td rowspan="2"></td>
+
+                        <th rowspan="2" align="center" width="15%">Breast Cancer Specific</th>
+
+
+
+                        <th rowspan="2" align="center" width="15%">Overall</th>
+
+                        <th colspan="4">Absolute risk reduction on treatment</th>
+
+                      </tr>
+
+                      <tr>
+
+                        <td align="center" width="15%">Chemo</td>
+
+                        <td align="center" width="15%">Hormone</td>
+
+                        <td align="center" width="15%">Chemo and Hormone</td>
+
+                        <td align="center" width="15%">Chemo, Hormone and Trastuzumab</td>
+
+
+
+                      </tr>
+
+                      <tr>
+
+                        <th align="left">Predicted 4 year survival</th>
+
+                        <td align="center"><input class="boxes" id="surv4_bcSpec" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv4_OL" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv4_Chemo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv4_Hormo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv4_CandH" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv4_CHT" size="5" readonly type="text"></td>
+
+
+
+                      </tr>
+
+                      <tr>
+
+                        <th align="left">Predicted 5 year survival</th>
+
+                        <td align="center"><input class="boxes" id="surv5_bcSpec" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv5_OL" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv5_Chemo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv5_Hormo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv5_CandH" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv5_CHT" size="5" readonly type="text"></td>
+
+
+
+                      </tr>
+
+                      <tr>
+
+                        <th align="left">Predicted 10 year survival</th>
+
+                        <td align="center"><input class="boxes" id="surv10_bcSpec" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv10_OL" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv10_Chemo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv10_Hormo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv10_CandH" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="surv10_CHT" size="5" readonly type="text"></td>
+
+
+
+                      </tr>
+
+                      <tr>
+
+                        <th colspan="2" align="left">Person years survival to 10 years</th>
+
+                        <td align="center"><input class="boxes" id="py_OL" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="py_Chemo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="py_Hormo" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="py_CandH" size="5" readonly type="text"></td>
+
+                        <td align="center"><input class="boxes" id="py_CHT" size="5" readonly type="text"></td>
+
+                      </tr>
+
+
+
+                    </tbody></table>
+
+
+
+      </div>
+
+        <!--end of content div-->
+
+      </div>
+
+
+
+      <div id="footer">
+
+         <a class="span8" href="http://www.ecric.nhs.uk/">© Eastern Cancer Registry and Information Centre and Cambridge University</a>
+
+          <span span4>Contact: <a href="mailto:info@predict.nhs.uk">info@predict.nhs.uk</a></span>
+
+      </div>
+
+      <!--end of footer div-->
+
+
+
+    <!--end of contentborder div-->
+
+  </div>
+
+  <!--end of homeborder div-->
+
+
+
+<input type="hidden" id="chart5_ovs" value="" >
+
+<input type="hidden" id="chart5_hormo" value="" >
+
+<input type="hidden" id="chart5_chemo_add" value="" >
+
+<input type="hidden" id="chart5_tram_add" value="" >
+
+<input type="hidden" id="chart10_ovs" value="" >
+
+<input type="hidden" id="chart10_hormo" value="" >
+
+<input type="hidden" id="chart10_chemo_add" value="" >
+
+<input type="hidden" id="chart10_tram_add" value="" >
+
+</div>
+
+<script src="js/jquery1.js"></script>
+
+<script src="js/bootstrap0.js"></script>
+
+<script type="text/javascript">
+
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+</script>
+
+<script src="js/ga.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+try {
+
+var pageTracker = _gat._getTracker("UA-1462795-8");
+
+pageTracker._trackPageview();
+
+} catch(err) {}</script>
+
+</body>
+
+</html>
