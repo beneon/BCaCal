@@ -115,17 +115,22 @@ function LifeMathCal(){
   var expect_life_saved_years=0
   var expect_life_saved_days=0
   this.initial = function(ageP,diaP,nnumP,nodesKnownP,gradeP,erP,herP,prP,hisP,endoP,chemoP){
-    age = ageP
-    dia = diaP
-    nnum = nnumP
-    nodesKnown = nodesKnownP
-    grade=gradeP
-    er=erP
-    her=herP
-    pr=prP
-    his=hisP
-    endo=endoP
-    chemo=chemoP
+    if(ageP > 0 && diaP > 0 && nnumP >= 0){
+      age = ageP
+      dia = diaP
+      nnum = nnumP
+      nodesKnown = nodesKnownP
+      grade=gradeP
+      er=erP
+      her=herP
+      pr=prP
+      his=hisP
+      endo=endoP
+      chemo=chemoP
+      return true
+    }else{
+      return false
+    }
   }
   // If nodal status is unknown, j_primary is set to 1
   /********************************************************************
@@ -245,16 +250,22 @@ function LifeMathCal(){
   * STEP 3.a   Calculate the life expectancy for the cancer patient by multiplying the chance of dying in each of the years 1-15 by the number of years survived to that point.  Then add the NVSR life expectancy for people 15 years older than the patient's current age, multiplied by the patients chance of surviving 15 years.
   ****************************************************************************/
   this.lifeExpectation = function(){
+    console.log("calc_life_expectation:%f",calc_life_expectation)
     for (var i=1; i<=15; i++){
         calc_life_expectation = calc_life_expectation + L_overall_death_yearly[i] * (i-0.5);
     }
+    console.log("(after for loop), calc_life_expectation:%f",calc_life_expectation)
+
     calc_life_expectation = calc_life_expectation + (1 - L_overall_death_cumm[15]) * (nvsr_life_expect[age + 15] +15)
+    console.log("(after for modification), calc_life_expectation:%f",calc_life_expectation)
+
   }
   /********************************************************************
   * STEP 3.b   The program calculates the expected years of life lost due to cancer, by subtracting the calculated life expectancy (step 3.a) from the NVSR-given life expectancy for the specified age.
   ****************************************************************************/
   this.expYL = function(){
     expect_years_life_lost = nvsr_life_expect[age] - calc_life_expectation;
+    console.log("expect_years_life_lost:%f,calc_life_expectation:%f",expect_years_life_lost,calc_life_expectation)
   }
   /***************************************************************
   * Determine whether projections exceed 100 years of age, and remove such projections-- data is not projected to ages above 100
@@ -478,14 +489,13 @@ function LifeMathCal(){
   this.calculateSequence = function(){
     this.gParaCal();
     this.kmCal();
-    this.expYL();
     this.yearlyDeath();
     this.cumulativeDeath();
     this.lifeExpectation();
+    this.expYL();
     this.deathDataTruncate();
     this.cumDeathTruncate();
     this.combineEffect();
-    this.deathDataTruncate();
     this.deathTrAddjust();
     this.deathCumTrAddjust();
     this.lifeExpect();

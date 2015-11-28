@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="Ben">
   <link rel="icon" href="bootstrap/favicon.ico">
-  <title>bootstrap Testing</title>
+  <title>乳腺癌生存预测计算器</title>
   <link href="bootstrap/css/normalize.css" rel="stylesheet">
   <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="BCaCss/inputTest.css" rel="stylesheet">
@@ -174,15 +174,13 @@
   <div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span>计算结果</div>
   <div class="panel-body" id="resultDisp">
     <div id="lifeMathModelResult">
-      Cancer Mortality:	18.2% expected 15-year cancer death rate.
-      (18.5% 15-year Kaplan-Meier cancer death rate)
-      Life Expectancy:
-      This cancer shortens the life expectancy of a 45-year-old woman by 5.6 years. (from 37.3 years to 31.7 years)
       <h2 class="h4">LifeMath模型结果</h2>
-      <h3>癌症死亡率</h3>
+      <h3 class="h5">癌症死亡率</h3>
       <p>在诊断后第15年预计癌症特异性死亡率为<span id="l_expectedLM">_</span>%<br>（依据Kaplan-Meier法计算的死亡率为<span id="l_kmLM">_</span>%）</p>
       <h3 class="h5">预期寿命</h3>
-      <p></p>
+      <p>癌症将<span id="ageTextLM"></span>岁女性的预期寿命缩短<span id="expect_life_lostLM"></span>年。（由<span id="life_expectLM"></span>年缩短至<span id="life_expect_with_cancerLM"></span>年)</p>
+      <h3 class="h5">治疗获益</h3>
+      <p>通过当前治疗可增加预期寿命<span id="expect_saved_years"></span>年（<span id="expect_saved_days"></span>天）。并将15年死亡率降低<span id="totaltherapyEffect"></span>%</p>
     </div>
     <div id="ukModelResult">
     <h2 class="h4">UK模型结果</h2>
@@ -215,7 +213,8 @@
   <script src="script/lifemathMod.js"></script>
   <script src="script/modelUKMod.js"></script>
   <script>
-
+  $("#ukModelResult").css("display","none")
+  $("#lifeMathModelResult").css("display","none")
   function notEmpty(inputSrc){
     var val = $("#"+inputSrc).val()
     if( val == ""){
@@ -255,19 +254,15 @@
     var ModelUK = new UkBcaCal()
 
     function ModelLifeMathCal(){
-      ModelLifeMath.initial(age,dia/10,nnum,nknown,grade,er,her,pr,his,endo,chemo)
-      ModelLifeMath.calculateSequence()
-      result = ModelLifeMath.dataOutput()
-      return result
-      result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
-      result["life_expect"] = Math.round(nvsr_life_expect[age]*10)/10
-      result["expect_life_lost"] = Math.round(expect_years_life_lost*10)/10
-      result["expect_saved_years"] = Math.round(expect_life_saved_years*10)/10
-      result["expect_saved_days"] = Math.round(expect_life_saved_days)
-      result["l_km"] = Math.round(L_breastcancer_KM_therapy*1000)/10
-      result["life_expect_with_cancer"] = Math.round((nvsr_life_expect[age] - expect_years_life_lost)*10)/10
-      result["death_reduction"] = Math.round(totaltherapyEffect*1000) / 10
-      result["l_expected"] = Math.round(L_cancer_death_cumm_therapy[15]*1000)/10
+      var parameterOK = ModelLifeMath.initial(age,dia/10,nnum,nknown,grade,er,her,pr,his,endo,chemo)
+      if(parameterOK){
+        ModelLifeMath.calculateSequence()
+        result = ModelLifeMath.dataOutput()
+        console.log(result)
+        return result
+      }else{
+        return null
+      }
     }
     function ModelUKCal(){
       var parameterOK = ModelUK.initial(age,dia,nnum,nknown,grade,er,her,chemo,detection,ki67)
@@ -298,6 +293,20 @@
       resultDisplaySetting(UKDispEvaluate)
     }else{
       $("#ukModelResult").css("display","none")
+    }
+    if(lifeMathCalResult != null){
+      $("#lifeMathModelResult").css("display","")
+      $("#l_expectedLM").html(lifeMathCalResult["l_expected"])
+      $("#l_kmLM").html(lifeMathCalResult["l_km"])
+      $("#ageTextLM").html(age)
+      $("#expect_life_lostLM").html(lifeMathCalResult["expect_life_lost"])
+      $("#life_expectLM").html(lifeMathCalResult["life_expect"])
+      $("#life_expect_with_cancerLM").html(lifeMathCalResult["life_expect_with_cancer"])
+      $("#expect_saved_years").html(lifeMathCalResult["expect_saved_years"])
+      $("#expect_saved_days").html(lifeMathCalResult["expect_saved_days"])
+      $("#totaltherapyEffect").html(lifeMathCalResult["death_reduction"])
+    }else{
+      $("#lifeMathModelResult").css("display","none")
     }
   }
   function makeEnable(target,isEnable){
